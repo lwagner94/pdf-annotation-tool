@@ -1,5 +1,11 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+    h1 PDF Annotation Tool
+    a(href="/upload") Upload
+    ul
+        each document in documents
+            li
+                a(href='api/file/' + document.path) #{document.name}
+
+
