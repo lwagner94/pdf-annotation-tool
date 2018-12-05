@@ -6,6 +6,6 @@ block content
     ul
         each document in documents
             li
-                a(href='api/file/' + document.path) #{document.name}
+                a(href='viewer/?name=' + document.path) #{document.name}
 
 

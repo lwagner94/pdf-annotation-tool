@@ -3,5 +3,5 @@ extends layout
 block content
     h1= File
     form(method='POST' action='api/upload' enctype='multipart/form-data')
-        input(type='file' name='pdf')
+        input(type='file' name='pdf' accept='application/pdf')
         input(type='submit' value='Upload')

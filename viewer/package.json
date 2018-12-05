@@ -1,10 +1,11 @@
 {
-  "name": "vue-pdfjs-demo",
+  "name": "viewer",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve --open",
-    "build": "vue-cli-service build",
+    "build-production": "vue-cli-service build",
+    "build": "vue-cli-service build --mode development",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {

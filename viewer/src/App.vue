@@ -29,8 +29,13 @@ export default {
   },
 
   data() {
+    let url = new URL(window.location.href);
+
+
+
     return {
-      url: process.env.VUE_APP_PDF_URL,
+      // url: process.env.VUE_APP_PDF_URL,
+      url: '/api/file/' + url.searchParams.get("name"),
       documentError: undefined,
       enableUploader: process.env.VUE_APP_UPLOAD_ENABLED === 'true',
     };
