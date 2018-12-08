@@ -1,93 +1,93 @@
 <template>
-  <ScrollingDocument
-    class="pdf-preview"
-    @pages-fetch="onPagesFetch"
-    v-bind="{pages, pageCount, currentPage}"
-    :is-parent-visible="isPreviewEnabled"
+    <ScrollingDocument
+            class="pdf-preview"
+            @pages-fetch="onPagesFetch"
+            v-bind="{pages, pageCount, currentPage}"
+            :is-parent-visible="isPreviewEnabled"
     >
-    <PDFThumbnail
-      slot-scope="{page, isElementVisible, isPageFocused}"
-      v-bind="{scale, page, isElementVisible, isPageFocused}"
-      @thumbnail-rendered="onThumbnailRendered"
-      @thumbnail-errored="onThumbnailErrored"
-      @page-focus="onPageFocused"
-      />
-  </ScrollingDocument>
+        <PDFThumbnail
+                slot-scope="{page, isElementVisible, isPageFocused}"
+                v-bind="{scale, page, isElementVisible, isPageFocused}"
+                @thumbnail-rendered="onThumbnailRendered"
+                @thumbnail-errored="onThumbnailErrored"
+                @page-focus="onPageFocused"
+        />
+    </ScrollingDocument>
 </template>
 
 <script>
-import ScrollingDocument from './ScrollingDocument';
-import PDFThumbnail from './PDFThumbnail';
+    import ScrollingDocument from './ScrollingDocument';
+    import PDFThumbnail from './PDFThumbnail';
 
-export default {
-  name: 'PDFPreview',
+    export default {
+        name: 'PDFPreview',
 
-  components: {
-    ScrollingDocument,
-    PDFThumbnail,
-  },
+        components: {
+            ScrollingDocument,
+            PDFThumbnail,
+        },
 
-  props: {
-    pages: {
-      required: true,
-    },
-    pageCount: {
-      type: Number,
-      default: 0,
-    },
-    scale: {
-      type: Number,
-      default: 1.0,
-    },
-    currentPage: {
-      type: Number,
-      default: 1,
-    },
-    isPreviewEnabled: {
-      default: false,
-    },
-  },
+        props: {
+            pages: {
+                required: true,
+            },
+            pageCount: {
+                type: Number,
+                default: 0,
+            },
+            scale: {
+                type: Number,
+                default: 1.0,
+            },
+            currentPage: {
+                type: Number,
+                default: 1,
+            },
+            isPreviewEnabled: {
+                default: false,
+            },
+        },
 
-  methods: {
-    onPagesFetch(currentPage) {
-      this.$parent.$emit('pages-fetch', currentPage);
-    },
+        methods: {
+            onPagesFetch(currentPage) {
+                this.$parent.$emit('pages-fetch', currentPage);
+            },
 
-    onPageFocused(pageNumber) {
-      this.$parent.$emit('page-focus', pageNumber);
-    },
+            onPageFocused(pageNumber) {
+                this.$parent.$emit('page-focus', pageNumber);
+            },
 
-    onThumbnailRendered(payload) {
-      this.$el.dispatchEvent(new Event('scroll'));
-      this.$parent.$emit('thumbnail-rendered', payload);
-    },
+            onThumbnailRendered(payload) {
+                this.$el.dispatchEvent(new Event('scroll'));
+                this.$parent.$emit('thumbnail-rendered', payload);
+            },
 
-    onThumbnailErrored(payload) {
-      this.$parent.$emit('thumbnail-errored', payload);
-    },
-  },
-};
+            onThumbnailErrored(payload) {
+                this.$parent.$emit('thumbnail-errored', payload);
+            },
+        },
+    };
 </script>
 
 <style scoped>
-.pdf-preview {
-  position: absolute;
-  overflow: auto;
-  z-index: 1;
-  padding: 2em 0;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
+    .pdf-preview {
+        position: absolute;
+        overflow: auto;
+        z-index: 1;
+        padding: 2em 0;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
 
-.scrolling-page {
-  margin-bottom: 1em;
-}
+    .scrolling-page {
+        margin-bottom: 1em;
+    }
 
-@media print {
-  .pdf-preview {
-    display: none;
-  }
-}
+    @media print {
+        .pdf-preview {
+            display: none;
+        }
+    }
 </style>

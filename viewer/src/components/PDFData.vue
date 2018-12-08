@@ -1,130 +1,132 @@
 <script>
-// PDFDocument renders an entire PDF inline using
-// PDF.js and <canvas>. Currently does not support,
-// rendering of selected pages (but could be easily
-// updated to do so).
-import debug from 'debug';
-const log = debug('app:components/PDFData');
+    // PDFDocument renders an entire PDF inline using
+    // PDF.js and <canvas>. Currently does not support,
+    // rendering of selected pages (but could be easily
+    // updated to do so).
+    import debug from 'debug';
 
-import range from 'lodash/range';
+    const log = debug('app:components/PDFData');
 
-function getDocument(url) {
-  // Using import statement in this way allows Webpack
-  // to treat pdf.js as an async dependency so we can
-  // avoid adding it to one of the main bundles
-  return import(
-    /* webpackChunkName: 'pdfjs-dist' */
-    'pdfjs-dist/webpack').then(pdfjs => pdfjs.getDocument(url));
-}
+    import range from 'lodash/range';
 
-// pdf: instance of PDFData
-// see docs for PDF.js for more info
-function getPages(pdf, first, last) {
-  const allPages = range(first, last+1).map(number => pdf.getPage(number));
-  return Promise.all(allPages);
-}
+    function getDocument(url) {
+        // Using import statement in this way allows Webpack
+        // to treat pdf.js as an async dependency so we can
+        // avoid adding it to one of the main bundles
+        return import(
+            /* webpackChunkName: 'pdfjs-dist' */
+            'pdfjs-dist/webpack').then(pdfjs => pdfjs.getDocument(url));
+    }
 
-const BUFFER_LENGTH = 10;
-function getDefaults() {
-  return {
-    pages: [],
-    cursor: 0,
-  };
-}
+    // pdf: instance of PDFData
+    // see docs for PDF.js for more info
+    function getPages(pdf, first, last) {
+        const allPages = range(first, last + 1).map(number => pdf.getPage(number));
+        return Promise.all(allPages);
+    }
 
-export default {
-  name: 'PDFData',
+    const BUFFER_LENGTH = 10;
 
-  props: {
-    url: {
-      type: String,
-      required: true,
-    },
-  },
+    function getDefaults() {
+        return {
+            pages: [],
+            cursor: 0,
+        };
+    }
 
-  data() {
-    return Object.assign(getDefaults(), {
-      pdf: undefined,
-    });
-  },
+    export default {
+        name: 'PDFData',
 
-  watch: {
-    url: {
-      handler(url) {
-        getDocument(url)
-          .then(pdf => (this.pdf = pdf))
-          .catch(response => {
-            this.$emit('document-errored', {text: 'Failed to retrieve PDF', response});
-            log('Failed to retrieve PDF', response);
-          });
-      },
-      immediate: true,
-    },
+        props: {
+            url: {
+                type: String,
+                required: true,
+            },
+        },
 
-    pdf(pdf, oldPdf) {
-      if (!pdf) return;
-      if (oldPdf) Object.assign(this, getDefaults());
+        data() {
+            return Object.assign(getDefaults(), {
+                pdf: undefined,
+            });
+        },
 
-      this.$emit('page-count', this.pageCount);
-      this.fetchPages();
-    },
-  },
+        watch: {
+            url: {
+                handler(url) {
+                    getDocument(url)
+                        .then(pdf => (this.pdf = pdf))
+                        .catch(response => {
+                            this.$emit('document-errored', {text: 'Failed to retrieve PDF', response});
+                            log('Failed to retrieve PDF', response);
+                        });
+                },
+                immediate: true,
+            },
 
-  computed: {
-    pageCount() {
-      return this.pdf ? this.pdf.numPages : 0;
-    },
-  },
+            pdf(pdf, oldPdf) {
+                if (!pdf) return;
+                if (oldPdf) Object.assign(this, getDefaults());
 
-  methods: {
-    fetchPages(currentPage = 0) {
-      if (!this.pdf) return;
-      if (this.pageCount > 0 && this.pages.length === this.pageCount) return;
+                this.$emit('page-count', this.pageCount);
+                this.fetchPages();
+            },
+        },
 
-      const startIndex = this.pages.length;
-      if (this.cursor > startIndex) return;
+        computed: {
+            pageCount() {
+                return this.pdf ? this.pdf.numPages : 0;
+            },
+        },
 
-      const startPage = startIndex + 1;
-      const endPage = Math.min(Math.max(currentPage, startIndex + BUFFER_LENGTH), this.pageCount);
-      this.cursor = endPage;
+        methods: {
+            fetchPages(currentPage = 0) {
+                if (!this.pdf) return;
+                if (this.pageCount > 0 && this.pages.length === this.pageCount) return;
 
-      log(`Fetching pages ${startPage} to ${endPage}`);
-      getPages(this.pdf, startPage, endPage)
-        .then((pages) => {
-          const deleteCount = 0;
-          this.pages.splice(startIndex, deleteCount, ...pages);
-          return this.pages;
-        })
-        .catch((response) => {
-          this.$emit('document-errored', {text: 'Failed to retrieve pages', response});
-          log('Failed to retrieve pages', response);
-        });
-    },
+                const startIndex = this.pages.length;
+                if (this.cursor > startIndex) return;
 
-    onPageRendered({text, page}) {
-      log(text, page);
-    },
+                const startPage = startIndex + 1;
+                const endPage = Math.min(Math.max(currentPage, startIndex + BUFFER_LENGTH), this.pageCount);
+                this.cursor = endPage;
 
-    onPageErrored({text, response, page}) {
-      log('Error!', text, response, page);
-    },
-  },
+                log(`Fetching pages ${startPage} to ${endPage}`);
+                getPages(this.pdf, startPage, endPage)
+                    .then((pages) => {
+                        const deleteCount = 0;
+                        this.pages.splice(startIndex, deleteCount, ...pages);
+                        return this.pages;
+                    })
+                    .catch((response) => {
+                        this.$emit('document-errored', {text: 'Failed to retrieve pages', response});
+                        log('Failed to retrieve pages', response);
+                    });
+            },
 
-  created() {
-    this.$on('page-rendered', this.onPageRendered);
-    this.$on('page-errored', this.onPageErrored);
-    this.$on('pages-fetch', this.fetchPages);
-  },
+            onPageRendered({text, page}) {
+                log(text, page);
+            },
 
-  render(h) {
-    return h('div', [
-      this.$scopedSlots.preview({
-        pages: this.pages,
-      }),
-      this.$scopedSlots.document({
-        pages: this.pages,
-      }),
-    ]);
-  },
-};
+            onPageErrored({text, response, page}) {
+                log('Error!', text, response, page);
+            },
+        },
+
+        created() {
+            this.$on('page-rendered', this.onPageRendered);
+            this.$on('page-errored', this.onPageErrored);
+            this.$on('pages-fetch', this.fetchPages);
+        },
+
+        render(h) {
+            return h('div', [
+                this.$scopedSlots.preview({
+                    pages: this.pages,
+                }),
+                this.$scopedSlots.document({
+                    pages: this.pages,
+                }),
+            ]);
+        },
+    };
 </script>

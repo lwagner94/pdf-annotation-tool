@@ -1,164 +1,165 @@
 <script>
-import debug from 'debug';
-const log = debug('app:components/PDFPage');
+    import debug from 'debug';
 
-import {PIXEL_RATIO} from '../utils/constants';
+    const log = debug('app:components/PDFPage');
 
-export default {
-  name: 'PDFPage',
+    import {PIXEL_RATIO} from '../utils/constants';
 
-  props: {
-    page: {
-      type: Object, // instance of PDFPageProxy returned from pdf.getPage
-      required: true,
-    },
-    scale: {
-      type: Number,
-      required: true,
-    },
-    optimalScale: {
-      type: Number,
-      required: true,
-    },
-    isPageFocused: {
-      type: Boolean,
-      default: false,
-    },
-    isElementVisible: {
-      type: Boolean,
-      default: false,
-    },
-    isElementFocused: {
-      type: Boolean,
-      default: false,
-    },
-  },
+    export default {
+        name: 'PDFPage',
 
-  computed: {
-    actualSizeViewport() {
-      return this.viewport.clone({scale: this.scale});
-    },
+        props: {
+            page: {
+                type: Object, // instance of PDFPageProxy returned from pdf.getPage
+                required: true,
+            },
+            scale: {
+                type: Number,
+                required: true,
+            },
+            optimalScale: {
+                type: Number,
+                required: true,
+            },
+            isPageFocused: {
+                type: Boolean,
+                default: false,
+            },
+            isElementVisible: {
+                type: Boolean,
+                default: false,
+            },
+            isElementFocused: {
+                type: Boolean,
+                default: false,
+            },
+        },
 
-    canvasStyle() {
-      const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
-      const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
-        .map(dim => Math.ceil(dim / PIXEL_RATIO));
-      return `width: ${pixelWidth}px; height: ${pixelHeight}px;`;
-    },
+        computed: {
+            actualSizeViewport() {
+                return this.viewport.clone({scale: this.scale});
+            },
 
-    canvasAttrs() {
-      let {width, height} = this.viewport;
-      [width, height] = [width, height].map(dim => Math.ceil(dim));
-      const style = this.canvasStyle;
+            canvasStyle() {
+                const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
+                const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
+                    .map(dim => Math.ceil(dim / PIXEL_RATIO));
+                return `width: ${pixelWidth}px; height: ${pixelHeight}px;`;
+            },
 
-      return {
-        width,
-        height,
-        style,
-        class: 'pdf-page box-shadow',
-      };
-    },
+            canvasAttrs() {
+                let {width, height} = this.viewport;
+                [width, height] = [width, height].map(dim => Math.ceil(dim));
+                const style = this.canvasStyle;
 
-    pageNumber() {
-      return this.page.pageNumber;
-    },
-  },
+                return {
+                    width,
+                    height,
+                    style,
+                    class: 'pdf-page box-shadow',
+                };
+            },
 
-  methods: {
-    focusPage() {
-      if (this.isPageFocused) return;
+            pageNumber() {
+                return this.page.pageNumber;
+            },
+        },
 
-      this.$emit('page-focus', this.pageNumber);
-    },
+        methods: {
+            focusPage() {
+                if (this.isPageFocused) return;
 
-    drawPage() {
-      if (this.renderTask) return;
+                this.$emit('page-focus', this.pageNumber);
+            },
 
-      const {viewport} = this;
-      const canvasContext = this.$el.getContext('2d');
-      const renderContext = {canvasContext, viewport};
+            drawPage() {
+                if (this.renderTask) return;
 
-      // PDFPageProxy#render
-      // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-      this.renderTask = this.page.render(renderContext);
-      this.renderTask
-        .then(() => {
-          this.$emit('page-rendered', {
-            page: this.page,
-            text: `Rendered page ${this.pageNumber}`,
-          });
-         })
-        .catch(response => {
-          this.destroyRenderTask();
-          this.$emit('page-errored', {
-            response,
-            page: this.page,
-            text: `Failed to render page ${this.pageNumber}`,
-          });
-        });
-    },
+                const {viewport} = this;
+                const canvasContext = this.$el.getContext('2d');
+                const renderContext = {canvasContext, viewport};
 
-    updateVisibility() {
-      this.$parent.$emit('update-visibility');
-    },
+                // PDFPageProxy#render
+                // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
+                this.renderTask = this.page.render(renderContext);
+                this.renderTask
+                    .then(() => {
+                        this.$emit('page-rendered', {
+                            page: this.page,
+                            text: `Rendered page ${this.pageNumber}`,
+                        });
+                    })
+                    .catch(response => {
+                        this.destroyRenderTask();
+                        this.$emit('page-errored', {
+                            response,
+                            page: this.page,
+                            text: `Failed to render page ${this.pageNumber}`,
+                        });
+                    });
+            },
 
-    destroyPage(page) {
-      // PDFPageProxy#_destroy
-      // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-      if (page) page._destroy();
+            updateVisibility() {
+                this.$parent.$emit('update-visibility');
+            },
 
-      this.destroyRenderTask();
-    },
+            destroyPage(page) {
+                // PDFPageProxy#_destroy
+                // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
+                if (page) page._destroy();
 
-    destroyRenderTask() {
-      if (!this.renderTask) return;
+                this.destroyRenderTask();
+            },
 
-      // RenderTask#cancel
-      // https://mozilla.github.io/pdf.js/api/draft/RenderTask.html
-      this.renderTask.cancel();
-      delete this.renderTask;
-    },
-  },
+            destroyRenderTask() {
+                if (!this.renderTask) return;
 
-  watch: {
-    scale: 'updateVisibility',
+                // RenderTask#cancel
+                // https://mozilla.github.io/pdf.js/api/draft/RenderTask.html
+                this.renderTask.cancel();
+                delete this.renderTask;
+            },
+        },
 
-    page(_newPage, oldPage) {
-      this.destroyPage(oldPage);
-    },
+        watch: {
+            scale: 'updateVisibility',
 
-    isElementFocused(isElementFocused) {
-      if (isElementFocused) this.focusPage();
-    },
+            page(_newPage, oldPage) {
+                this.destroyPage(oldPage);
+            },
 
-    isElementVisible(isElementVisible) {
-      if (isElementVisible) this.drawPage();
-    },
-  },
+            isElementFocused(isElementFocused) {
+                if (isElementFocused) this.focusPage();
+            },
 
-  created() {
-    // PDFPageProxy#getViewport
-    // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-    this.viewport = this.page.getViewport(this.optimalScale);
-  },
+            isElementVisible(isElementVisible) {
+                if (isElementVisible) this.drawPage();
+            },
+        },
 
-  mounted() {
-    log(`Page ${this.pageNumber} mounted`);
-  },
+        created() {
+            // PDFPageProxy#getViewport
+            // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
+            this.viewport = this.page.getViewport(this.optimalScale);
+        },
 
-  beforeDestroy() {
-    this.destroyPage(this.page);
-  },
+        mounted() {
+            log(`Page ${this.pageNumber} mounted`);
+        },
 
-  render(h) {
-    const {canvasAttrs: attrs} = this;
-    return h('canvas', {attrs});
-  },
-};
+        beforeDestroy() {
+            this.destroyPage(this.page);
+        },
+
+        render(h) {
+            const {canvasAttrs: attrs} = this;
+            return h('canvas', {attrs});
+        },
+    };
 </script>
 <style>
-.pdf-page {
-  display: block;
-  margin: 0 auto;
-}
+    .pdf-page {
+        display: block;
+        margin: 0 auto;
+    }
 </style>

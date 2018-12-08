@@ -1,13 +1,13 @@
 export default function deferredPromise() {
-  let res, rej;
+    let res, rej;
 
-  const promise = new Promise((resolve, reject) => {
-    res = resolve;
-    rej = reject;
-  });
+    const promise = new Promise((resolve, reject) => {
+        res = resolve;
+        rej = reject;
+    });
 
-  promise.resolve = res;
-  promise.reject = rej;
+    promise.resolve = res;
+    promise.reject = rej;
 
-  return promise;
+    return promise;
 }
