@@ -1,3 +1,12 @@
+<template>
+    <div id="canvascontainer">
+        <!--<canvas ref="draw" v-bind="canvasAttrs"></canvas>-->
+        <canvas ref="annotations" v-bind="annotAttrs"></canvas>
+        <canvas ref="page" v-bind="canvasAttrs"></canvas>
+    </div>
+
+</template>
+
 <script>
     import debug from 'debug';
 
@@ -44,13 +53,33 @@
                 const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
                 const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
                     .map(dim => Math.ceil(dim / PIXEL_RATIO));
-                return `width: ${pixelWidth}px; height: ${pixelHeight}px;`;
+                return `width: ${pixelWidth}px; height: ${pixelHeight}px; position: relative; z-index: 0`;
             },
 
             canvasAttrs() {
                 let {width, height} = this.viewport;
                 [width, height] = [width, height].map(dim => Math.ceil(dim));
                 const style = this.canvasStyle;
+
+                return {
+                    width,
+                    height,
+                    style,
+                    class: 'pdf-page box-shadow',
+                };
+            },
+
+            annotStyle() {
+                const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
+                const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
+                    .map(dim => Math.ceil(dim / PIXEL_RATIO));
+                return `width: ${pixelWidth}px; height: ${pixelHeight}px; position: absolute; top: 0px; right: 0px; z-index: 1`;
+            },
+
+            annotAttrs() {
+                let {width, height} = this.viewport;
+                [width, height] = [width, height].map(dim => Math.ceil(dim));
+                const style = this.annotStyle;
 
                 return {
                     width,
@@ -76,7 +105,7 @@
                 if (this.renderTask) return;
 
                 const {viewport} = this;
-                const canvasContext = this.$el.getContext('2d');
+                const canvasContext = this.$refs.page.getContext('2d');
                 const renderContext = {canvasContext, viewport};
 
                 // PDFPageProxy#render
@@ -151,13 +180,19 @@
             this.destroyPage(this.page);
         },
 
-        render(h) {
-            const {canvasAttrs: attrs} = this;
-            return h('canvas', {attrs});
-        },
+        // render(h) {
+        //     const {canvasAttrs: attrs} = this;
+        //     return h('canvas', {attrs});
+        //
+        // },
     };
 </script>
 <style>
+    #canvascontainer {
+        display: inline-block;
+        position: relative;
+    }
+
     .pdf-page {
         display: block;
         margin: 0 auto;
