@@ -1,7 +1,8 @@
 <template>
-    <div id="canvascontainer">
-        <!--<canvas ref="draw" v-bind="canvasAttrs"></canvas>-->
-        <canvas ref="annotations" v-bind="annotAttrs"></canvas>
+    <div id="foobar">
+        <div id="positioning" style="z-index: 1">
+            <canvas ref="annotations" ></canvas>
+        </div>
         <canvas ref="page" v-bind="canvasAttrs"></canvas>
     </div>
 
@@ -9,6 +10,7 @@
 
 <script>
     import debug from 'debug';
+    import {fabric} from 'fabric';
 
     const log = debug('app:components/PDFPage');
 
@@ -44,6 +46,12 @@
             },
         },
 
+        data() {
+            return {
+                annotations: undefined
+            }
+        },
+
         computed: {
             actualSizeViewport() {
                 return this.viewport.clone({scale: this.scale});
@@ -73,7 +81,7 @@
                 const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
                 const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
                     .map(dim => Math.ceil(dim / PIXEL_RATIO));
-                return `width: ${pixelWidth}px; height: ${pixelHeight}px; position: absolute; top: 0px; right: 0px; z-index: 1`;
+                return `width: ${pixelWidth}px; height: ${pixelHeight}px;`; // position: absolute; top: 0px; right: 0px; z-index: 1`;
             },
 
             annotAttrs() {
@@ -128,6 +136,33 @@
                     });
             },
 
+            drawAnnotations: function() {
+                console.log('in draw');
+                const context = this.$refs.annotations;
+                this.annotations = new fabric.Canvas(context);
+
+                const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
+                const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
+                    .map(dim => Math.ceil(dim / PIXEL_RATIO));
+                this.annotations.setWidth(pixelWidth);
+                this.annotations.setHeight(pixelHeight);
+
+                var square = new fabric.Textbox("foo", {
+                    width: 100,
+                    height: 100,
+                    left: 100,
+                    top: 100,
+                    backgroundColor: "#000000",
+                    fill: "#FFFFFF",
+                    lockScalingY: true,
+                    fontSize: 20
+                });
+
+                this.annotations.add(square);
+                this.annotations.renderAll();
+
+            },
+
             updateVisibility() {
                 this.$parent.$emit('update-visibility');
             },
@@ -138,6 +173,10 @@
                 if (page) page._destroy();
 
                 this.destroyRenderTask();
+
+                this.annotations.dispose();
+                delete this.annotations;
+                this.annotations = undefined;
             },
 
             destroyRenderTask() {
@@ -151,7 +190,17 @@
         },
 
         watch: {
-            scale: 'updateVisibility',
+            scale: function() {
+                this.updateVisibility();
+
+                if (this.isElementVisible) {
+                    const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
+                    const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
+                        .map(dim => Math.ceil(dim / PIXEL_RATIO));
+                    this.annotations.setWidth(pixelWidth);
+                    this.annotations.setHeight(pixelHeight);
+                }
+            },
 
             page(_newPage, oldPage) {
                 this.destroyPage(oldPage);
@@ -162,7 +211,10 @@
             },
 
             isElementVisible(isElementVisible) {
-                if (isElementVisible) this.drawPage();
+                if (isElementVisible) {
+                    this.drawPage();
+                    this.drawAnnotations();
+                }
             },
         },
 
@@ -188,9 +240,13 @@
     };
 </script>
 <style>
-    #canvascontainer {
+    #foobar {
         display: inline-block;
         position: relative;
+    }
+
+    #positioning {
+        position: absolute;
     }
 
     .pdf-page {
