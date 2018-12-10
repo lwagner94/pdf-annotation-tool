@@ -15,7 +15,7 @@
 
 `/api/annotationsets/<set_id>`:
   - `GET`: Get annotation set
-  - `PUT`: Update existing annotation set
+  - `PUT`: Update existing annotation set - Do we need this?
   - `DELETE`: Delete annotation set 
   
 `/api/annotationsets/<set_id>/annotations`
