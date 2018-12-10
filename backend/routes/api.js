@@ -123,7 +123,7 @@ router.get("/annotationsets", (req, res) => {
 router.post("/annotationsets", (req, res) => {
 
     if (!req.body.hasOwnProperty("documentID")) {
-        res.send(400).send("Bad request");
+        res.status(400).send("Bad request");
         return;
     }
 
@@ -223,17 +223,17 @@ router.get("/annotationsets/:id/annotations", (req, res) => {
 
 router.post("/annotationsets/:id/annotations", (req, res) => {
     if (!req.body.hasOwnProperty("setID")) {
-        res.send(400).send("Bad request");
+        res.status(400).send("Bad request");
         return;
     }
 
     if (!req.body.hasOwnProperty("pageNumber")) {
-        res.send(400).send("Bad request");
+        res.status(400).send("Bad request");
         return;
     }
 
     if (!req.body.hasOwnProperty("properties")) {
-        res.send(400).send("Bad request");
+        res.status(400).send("Bad request");
         return;
     }
 
