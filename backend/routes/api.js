@@ -20,11 +20,12 @@ var storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.post('/upload', upload.single('pdf'), function(req, res) {
+router.post('/documents', upload.single('pdf'), function(req, res) {
     console.log(req);
     const newFile = new models.Document({
+        _id: req.file.filename,
+        userID: null,
         name: req.file.originalname,
-        path: req.file.filename,
         size: req.file.size,
         mimeType: req.file.mimetype
     });
@@ -37,8 +38,8 @@ router.post('/upload', upload.single('pdf'), function(req, res) {
     });
 });
 
-router.get('/file/:path', function(req, res){
-    models.Document.find({path: req.params.path}, (err, result) => {
+router.get('/documents/:id', function(req, res){
+    models.Document.find({_id: req.params.id}, (err, result) => {
         if (err) {
            res.status(500);
            return;
@@ -48,7 +49,7 @@ router.get('/file/:path', function(req, res){
             return;
         }
 
-        const path = 'files/' + req.params.path;
+        const path = 'files/' + req.params.id;
         const stream = fs.createReadStream(path);
         stream.pipe(res);
     });
