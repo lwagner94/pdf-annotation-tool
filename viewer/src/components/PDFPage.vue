@@ -1,9 +1,11 @@
 <template>
-    <div id="foobar">
-        <div id="positioning" style="z-index: 1">
-            <canvas ref="annotations" ></canvas>
+    <div id="foobar" v-bind:style="annotStyle" class="pdf-page box-shadow">
+        <div v-if="showPage">
+            <div id="positioning" style="z-index: 1">
+                <canvas ref="annotations" ></canvas>
+            </div>
+            <canvas ref="page" v-bind="canvasAttrs"></canvas>
         </div>
-        <canvas ref="page" v-bind="canvasAttrs"></canvas>
     </div>
 
 </template>
@@ -48,7 +50,8 @@
 
         data() {
             return {
-                annotations: undefined
+                annotations: undefined,
+                showPage: false
             }
         },
 
@@ -137,7 +140,6 @@
             },
 
             drawAnnotations: function() {
-                console.log('in draw');
                 const context = this.$refs.annotations;
                 this.annotations = new fabric.Canvas(context);
 
@@ -211,9 +213,18 @@
             },
 
             isElementVisible(isElementVisible) {
+                this.showPage = isElementVisible;
+
                 if (isElementVisible) {
-                    this.drawPage();
-                    this.drawAnnotations();
+                    this.$nextTick(() => {
+                        this.drawPage();
+                        this.drawAnnotations();
+                    });
+                }
+                else {
+                    this.$nextTick(() => {
+                        this.destroyPage(this.page);
+                    });
                 }
             },
         },
