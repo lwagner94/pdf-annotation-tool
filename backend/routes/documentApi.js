@@ -28,13 +28,6 @@ router.post("/", upload.single("pdf"), (req, res) => {
     });
 
     newFile.save().then(document => {
-        res.json({
-            id: document._id,
-            userID: document.userID,
-            name: document.name,
-            size: document.size
-        });
-
         res.location(`/api/documents/${document._id}`);
         res.status(201).send();
 

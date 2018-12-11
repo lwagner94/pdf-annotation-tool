@@ -59,17 +59,14 @@ router.post("/", (req, res) => {
             userID: null,
             locked: false,
         });
-
-        set.save().then(savedSet => {
-            res.location(`/api/annotationsets/${savedSet._id}`);
-            res.status(201).send();
-        }).catch(err => {
-            res.status(500).send("Internal server error");
-        });
-
+        return set.save();
+    }).then(savedSet => {
+        res.location(`/api/annotationsets/${savedSet._id}`);
+        res.status(201).send();
     }).catch(err => {
+        console.log(err);
         res.status(500).send("Internal server error");
-    });
+    })
 });
 
 
@@ -116,22 +113,20 @@ router.get("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
             return;
         }
 
-        models.Annotation.find({setID: set._id}).then(annotations => {
-            const result = [];
+        return models.Annotation.find({setID: set._id})
+    }).then(annotations => {
+        const result = [];
 
-            for (let annotation of annotations) {
-                result.push({
-                    id: annotation._id,
-                    setID: annotation.setID,
-                    pageNumber: annotation.pageNumber,
-                    propertis: annotation.properties
-                });
-            }
+        for (let annotation of annotations) {
+            result.push({
+                id: annotation._id,
+                setID: annotation.setID,
+                pageNumber: annotation.pageNumber,
+                propertis: annotation.properties
+            });
+        }
 
-            res.json(result);
-        }).catch(err => {
-            res.status(500).send("Internal server error" + err);
-        })
+        res.json(result);
 
     }).catch(err => {
         res.status(500).send("Internal server error" + err);
@@ -167,12 +162,10 @@ router.post("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
             properties: req.body.properties,
         });
 
-        annotation.save().then(savedAnnotation => {
-            res.location(`/api/annotationsets/${savedAnnotation.setID}/annotations/${savedAnnotation._id}`);
-            res.status(201).send();
-        }).catch(err => {
-            res.status(500).send("Internal server error" + err);
-        });
+        return annotation.save();
+    }).then(savedAnnotation => {
+        res.location(`/api/annotationsets/${savedAnnotation.setID}/annotations/${savedAnnotation._id}`);
+        res.status(201).send();
     }).catch(err => {
         res.status(500).send("Internal server error" + err);
     })
@@ -185,24 +178,19 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParam
             return;
         }
 
-        models.Annotation.findById(req.params.ObjectId_annotation).then(annotation => {
-            if (!annotation) {
-                res.status(404).send("Not found");
-                return;
-            }
+        return models.Annotation.findById(req.params.ObjectId_annotation)
+    }).then(annotation => {
+        if (!annotation) {
+            res.status(404).send("Not found");
+            return;
+        }
 
-            res.json({
-                id: annotation._id,
-                setID: annotation.setID,
-                pageNumber: annotation.pageNumber,
-                properties: annotation.properties
-            });
-
-        }).catch(err => {
-            res.status(500).send("Internal server error");
+        res.json({
+            id: annotation._id,
+            setID: annotation.setID,
+            pageNumber: annotation.pageNumber,
+            properties: annotation.properties
         });
-
-
     }).catch(err => {
         res.status(500).send("Internal server error");
     });
@@ -210,11 +198,6 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParam
 
 
 router.put("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
-    if (!req.body.hasOwnProperty("setID")) {
-        res.status(400).send("Bad request");
-        return;
-    }
-
     if (!req.body.hasOwnProperty("pageNumber")) {
         res.status(400).send("Bad request");
         return;
@@ -232,31 +215,20 @@ router.put("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParam
             return;
         }
 
-        models.Annotation.findById(req.params.ObjectId_annotation).then(annotation => {
-            if (!annotation) {
-                res.status(404).send("Not found");
-                return;
-            }
+        return models.Annotation.findById(req.params.ObjectId_annotation)
+    }).then(annotation => {
+        if (!annotation) {
+            res.status(404).send("Not found");
+            return;
+        }
 
-            models.AnnotationSet.findById(req.body.setID).then(newAnnotationSet => {
-                annotation.setID = req.body.setID;
-                annotation.pageNumber = req.body.pageNumber;
-                annotation.properties = req.body.properties;
+        annotation.pageNumber = req.body.pageNumber;
+        annotation.properties = req.body.properties;
 
-                annotation.save().then(result => {
-                    res.location(`/api/annotationsets/${result.setID}/annotations/${result._id}`);
-                    res.status(201).send();
-                }).catch(err => {
-                    res.status(500).send("Internal server error");
-                })
-            }).catch(err => {
-                res.status(400).send("Bad request");
-            });
-
-        }).catch(err => {
-            res.status(500).send("Internal server error");
-        });
-
+        return annotation.save();
+    }).then(result => {
+        res.location(`/api/annotationsets/${result.setID}/annotations/${result._id}`);
+        res.status(201).send();
     }).catch(err => {
         res.status(500).send("Internal server error");
     });
@@ -269,21 +241,15 @@ router.delete("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdPa
             return;
         }
 
-        models.Annotation.findById(req.params.ObjectId_annotation).then(annotation => {
-            if (!annotation) {
-                res.status(404).send("Not found");
-                return;
-            }
-
-            annotation.remove().then(() => {
-                res.status(200).send();
-            }).catch(err => {
-                res.status(500).send("Internal server error");
-            });
-
-        }).catch(err => {
-            res.status(500).send("Internal server error");
-        });
+        return models.Annotation.findById(req.params.ObjectId_annotation)
+    }).then(annotation => {
+        if (!annotation) {
+            res.status(404).send("Not found");
+            return;
+        }
+        return annotation.remove()
+    }).then(() => {
+        res.status(200).send();
 
     }).catch(err => {
         res.status(500).send("Internal server error");
