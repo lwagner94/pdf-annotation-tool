@@ -12,6 +12,20 @@ const multer = require("multer");
 
 router.use(bodyParser.json());
 
+function checkObjectIdParams(req, res, next) {
+    for (let parameterName in req.params) {
+        if (parameterName.startsWith("ObjectId_")) {
+            const value = req.params[parameterName];
+
+            if (!value.match(/^[0-9a-fA-F]{24}$/)) {
+                res.status(400).send("Bad request");
+            }
+        }
+    }
+    next();
+}
+
+
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, "files/")
@@ -36,6 +50,9 @@ router.post("/documents", upload.single("pdf"), (req, res) => {
            name: document.name,
            size: document.size
        });
+
+        res.location(`/api/documents/${document._id}`);
+        res.status(201).send();
 
     }).catch(err => {
         res.status(500).send("Internal Server error");
@@ -134,18 +151,14 @@ router.post("/annotationsets", (req, res) => {
         }
 
         const set = new models.AnnotationSet({
-            documentID: result.documentID,
+            documentID: result._id,
             userID: null,
             locked: false,
         });
 
         set.save().then(savedSet => {
-            res.json({
-                id: savedSet._id,
-                documentID: savedSet.documentID,
-                userID: savedSet.userID,
-                locked: savedSet.locked
-            })
+            res.location(`/api/annotationsets/${savedSet._id}`);
+            res.status(201).send();
         }).catch(err => {
             res.status(500).send("Internal server error");
         });
@@ -156,8 +169,8 @@ router.post("/annotationsets", (req, res) => {
 });
 
 
-router.get("/annotationsets/:id", (req, res) => {
-    models.AnnotationSet.findById(req.params.id).then(result => {
+router.get("/annotationsets/:ObjectId_set", checkObjectIdParams, (req, res) => {
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(result => {
         if (!result) {
             res.status(404).send("Not found");
             return;
@@ -176,15 +189,15 @@ router.get("/annotationsets/:id", (req, res) => {
 });
 
 
-router.delete("/annotationsets/:id", (req, res) => {
+router.delete("/annotationsets/:ObjectId_set", checkObjectIdParams, (req, res) => {
     // TODO: Remove all annotations which reference this annotation set
-    models.AnnotationSet.findById(req.params.id).then(result => {
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(result => {
         if (!result) {
             res.status(404).send("Not found");
             return;
         }
         result.remove();
-        res.send("Okay");
+        res.status(200).send();
 
     }).catch(err => {
         res.status(500).send("Internal server error" + err);
@@ -192,8 +205,8 @@ router.delete("/annotationsets/:id", (req, res) => {
 });
 
 
-router.get("/annotationsets/:id/annotations", (req, res) => {
-    models.AnnotationSet.findById(req.params.id).then(set => {
+router.get("/annotationsets/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
         if (!set) {
             res.status(404).send("Not found");
             return;
@@ -221,7 +234,7 @@ router.get("/annotationsets/:id/annotations", (req, res) => {
     })
 });
 
-router.post("/annotationsets/:id/annotations", (req, res) => {
+router.post("/annotationsets/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
     if (!req.body.hasOwnProperty("setID")) {
         res.status(400).send("Bad request");
         return;
@@ -238,7 +251,7 @@ router.post("/annotationsets/:id/annotations", (req, res) => {
     }
 
 
-    models.AnnotationSet.findById(req.params.id).then(set => {
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
         if (!set) {
             res.status(404).send("Not found");
             return;
@@ -251,12 +264,8 @@ router.post("/annotationsets/:id/annotations", (req, res) => {
         });
 
         annotation.save().then(savedAnnotation => {
-            res.json({
-               id: savedAnnotation._id,
-               setID: savedAnnotation.setID,
-               pageNumber: savedAnnotation.pageNumber,
-               properties: savedAnnotation.properties,
-            });
+            res.location(`/api/annotationsets/${savedAnnotation.setID}/annotations/${savedAnnotation._id}`);
+            res.status(201).send();
         }).catch(err => {
             res.status(500).send("Internal server error" + err);
         });
@@ -265,5 +274,116 @@ router.post("/annotationsets/:id/annotations", (req, res) => {
     })
 });
 
+router.get("/annotationsets/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
+        if (!set) {
+            res.status(404).send("Not found");
+            return;
+        }
+
+        models.Annotation.findById(req.params.ObjectId_annotation).then(annotation => {
+            if (!annotation) {
+                res.status(404).send("Not found");
+                return;
+            }
+
+            res.json({
+                id: annotation._id,
+                setID: annotation.setID,
+                pageNumber: annotation.pageNumber,
+                properties: annotation.properties
+            });
+
+        }).catch(err => {
+            res.status(500).send("Internal server error");
+        });
+
+
+    }).catch(err => {
+        res.status(500).send("Internal server error");
+    });
+});
+
+
+router.put("/annotationsets/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+    if (!req.body.hasOwnProperty("setID")) {
+        res.status(400).send("Bad request");
+        return;
+    }
+
+    if (!req.body.hasOwnProperty("pageNumber")) {
+        res.status(400).send("Bad request");
+        return;
+    }
+
+    if (!req.body.hasOwnProperty("properties")) {
+        res.status(400).send("Bad request");
+        return;
+    }
+
+
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
+        if (!set) {
+            res.status(404).send("Not found");
+            return;
+        }
+
+        models.Annotation.findById(req.params.ObjectId_annotation).then(annotation => {
+            if (!annotation) {
+                res.status(404).send("Not found");
+                return;
+            }
+
+            models.AnnotationSet.findById(req.body.setID).then(newAnnotationSet => {
+                annotation.setID = req.body.setID;
+                annotation.pageNumber = req.body.pageNumber;
+                annotation.properties = req.body.properties;
+
+                annotation.save().then(result => {
+                    res.location(`/api/annotationsets/${result.setID}/annotations/${result._id}`);
+                    res.status(201).send();
+                }).catch(err => {
+                    res.status(500).send("Internal server error");
+                })
+            }).catch(err => {
+                res.status(400).send("Bad request");
+            });
+
+        }).catch(err => {
+            res.status(500).send("Internal server error");
+        });
+
+    }).catch(err => {
+        res.status(500).send("Internal server error");
+    });
+});
+
+router.delete("/annotationsets/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
+        if (!set) {
+            res.status(404).send("Not found");
+            return;
+        }
+
+        models.Annotation.findById(req.params.ObjectId_annotation).then(annotation => {
+            if (!annotation) {
+                res.status(404).send("Not found");
+                return;
+            }
+
+            annotation.remove().then(() => {
+                res.status(200).send();
+            }).catch(err => {
+                res.status(500).send("Internal server error");
+            });
+
+        }).catch(err => {
+            res.status(500).send("Internal server error");
+        });
+
+    }).catch(err => {
+        res.status(500).send("Internal server error");
+    });
+});
 
 module.exports = router;
