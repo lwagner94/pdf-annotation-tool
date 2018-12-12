@@ -10,16 +10,22 @@ const multer = require("multer");
 
 router.use(bodyParser.json());
 
+function getFilePath() {
+    if (process.env.NODE_ENV === "test")
+        return "files-test/";
+    return "files/";
+
+}
+
 var storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, "files/")
+        cb(null, getFilePath())
     },
 });
 
 const upload = multer({ storage: storage });
 
 router.post("/", upload.single("pdf"), (req, res) => {
-    console.log(req);
     const newFile = new models.Document({
         _id: req.file.filename,
         userID: null,
@@ -62,7 +68,7 @@ router.get("/:id", (req, res) => {
             return;
         }
 
-        const path = "files/" + result._id;
+        const path = getFilePath() + result._id;
         const stream = fs.createReadStream(path);
         stream.pipe(res);
     }).catch(err => {
@@ -79,7 +85,7 @@ router.delete("/:id", (req, res) => {
             return;
         }
 
-        const path = "files/" + result._id;
+        const path = getFilePath() + result._id;
         fs.unlink(path, (err) => {
             if (err)
                 res.status(500).send("Internal server error");
