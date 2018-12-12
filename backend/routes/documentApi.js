@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const express = require("express");
 const models = require("../db/models");
 
+const HTTPError = require("../util").HTTPError;
+const handleError = require("../util").handleError;
+
 const router = express.Router();
 
 const multer = require("multer");
@@ -33,12 +36,11 @@ router.post("/", upload.single("pdf"), (req, res) => {
         size: req.file.size,
     });
 
-    newFile.save().then(document => {
+    return newFile.save().then(document => {
         res.location(`/api/documents/${document._id}`);
         res.status(201).send();
-
     }).catch(err => {
-        res.status(500).send("Internal Server error");
+        handleError(res, err);
     });
 });
 
@@ -57,15 +59,14 @@ router.get("/", (req, res) => {
 
         res.json(documents);
     }).catch(err => {
-        res.status(500).send("Internal Server Error");
+        handleError(res, err);
     });
 });
 
 router.get("/:id", (req, res) => {
     models.Document.findById(req.params.id).then(result => {
         if (!result) {
-            res.status(404).send("Not found");
-            return;
+            throw new HTTPError(404);
         }
 
         const path = getFilePath() + result._id;
@@ -73,30 +74,27 @@ router.get("/:id", (req, res) => {
         res.type("application/pdf");
         stream.pipe(res);
     }).catch(err => {
-        if (err) {
-            res.status(500).send("Internal server error");
-        }
+        handleError(res, err);
     });
 });
 
 router.delete("/:id", (req, res) => {
     models.Document.findById(req.params.id).then(result => {
         if (!result) {
-            res.status(404).send("Not found");
-            return;
+            throw new HTTPError(404);
         }
 
         const path = getFilePath() + result._id;
         fs.unlink(path, (err) => {
             if (err)
-                res.status(500).send("Internal server error");
+                throw err;
             else
                 result.remove();
         });
 
-        res.status(200).send("Okay");
+        res.status(200).send();
     }).catch(err => {
-        res.status(500).send("Internal server error");
+        handleError(res, err);
     });
 });
 

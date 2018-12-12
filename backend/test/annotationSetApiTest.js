@@ -1,6 +1,7 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const models = require("../db/models");
+const itParam = require("mocha-param");
 
 const util = require("./util");
 
@@ -35,6 +36,21 @@ describe("AnnotationSet API", function () {
                 response.headers.location.should.match(/api\/annotationsets\/.*/);
                 done();
             });
+    });
+
+    it("should return '400 Bad Request' if the document ID is invalid", function(done) {
+        request(server)
+            .post("/api/annotationsets")
+            .send({
+                documentID: "invalid"
+            })
+            .expect(400, done);
+    });
+
+    it("should return '400 Bad Request' when document ID is missing", function(done) {
+        request(server)
+            .post("/api/annotationsets")
+            .expect(400, done);
     });
 
     it("should be possible to retrieve created AnnotationSet", function(done) {
@@ -79,15 +95,17 @@ describe("AnnotationSet API", function () {
             });
     });
 
-    it("should return '404 Not found' for unknown IDs", function(done) {
+
+    itParam("should return '404 Not found' for malformed/unknown IDs", ["aaaaaaaaaaaaaaaaaaaaaaaa", "aaaaa"], function(done, value) {
         request(server)
-            .get("/api/annotationsets/aaaaaaaaaaaaaaaaaaaaaaaa")
+            .get("/api/annotationsets/" + value)
             .expect(404, done);
     });
 
-    it("should return '404 Not found' for malformed IDs", function(done) {
+    itParam("should return '404 Not found' for malformed/unknown IDs", ["aaaaaaaaaaaaaaaaaaaaaaaa", "aaaaa"], function(done, value) {
         request(server)
-            .get("/api/annotationsets/aaaaaaaaaa")
+            .delete("/api/annotationsets/" + value)
             .expect(404, done);
     });
+
 });

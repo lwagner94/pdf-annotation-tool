@@ -38,3 +38,13 @@ module.exports.addAnnotationSet = function (server, documentID) {
         })
         .expect(201)
 };
+
+module.exports.addAnnotation = function (server, annotationSetID) {
+    return request(server)
+        .post(`/api/annotationsets/${annotationSetID}/annotations/`)
+        .send({
+            pageNumber: 1,
+            properties: "test"
+        })
+        .expect(201)
+};

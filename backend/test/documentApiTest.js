@@ -35,6 +35,12 @@ describe("Document API", function () {
         });
     });
 
+    it("should return '404 Not Found' for documents that do not exist", function(done) {
+        request(server)
+            .get("/api/documents/invalid")
+            .expect(404, done);
+    });
+
     it("should not be possible to get non-existing documents", function(done) {
         request(server)
             .delete("/api/documents/abcd")
