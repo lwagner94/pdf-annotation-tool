@@ -3,8 +3,8 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const express = require("express");
 const models = require("../db/models");
-const HTTPError = require("../util").HTTPError;
-const handleError = require("../util").handleError;
+const HTTPError = require("../lib/util").HTTPError;
+const handleError = require("../lib/util").handleError;
 
 
 const router = express.Router();

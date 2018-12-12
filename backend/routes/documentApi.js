@@ -4,8 +4,10 @@ const mongoose = require("mongoose");
 const express = require("express");
 const models = require("../db/models");
 
-const HTTPError = require("../util").HTTPError;
-const handleError = require("../util").handleError;
+const HTTPError = require("../lib/util").HTTPError;
+const handleError = require("../lib/util").handleError;
+
+const thumbnail = require("../lib/thumbnail");
 
 const router = express.Router();
 
@@ -73,6 +75,23 @@ router.get("/:id", (req, res) => {
         const stream = fs.createReadStream(path);
         res.type("application/pdf");
         stream.pipe(res);
+    }).catch(err => {
+        handleError(res, err);
+    });
+});
+
+
+router.get("/:id/thumb", (req, res) => {
+    models.Document.findById(req.params.id).then(result => {
+        if (!result) {
+            throw new HTTPError(404);
+        }
+
+        const path = getFilePath() + result._id;
+
+        thumbnail.generateThumbnail(path).then(stream => {
+            stream.pipe(res);
+        });
     }).catch(err => {
         handleError(res, err);
     });

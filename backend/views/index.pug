@@ -6,6 +6,8 @@ block content
     ul
         each document in documents
             li
-                a(href='viewer/?name=' + document._id) #{document.name}
+                div
+                    a(href='viewer/?name=' + document._id) #{document.name}:
+                    a(href='api/documents/' + document._id + '/thumb') Thumb
 
 
