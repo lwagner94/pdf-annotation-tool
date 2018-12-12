@@ -70,6 +70,7 @@ router.get("/:id", (req, res) => {
 
         const path = getFilePath() + result._id;
         const stream = fs.createReadStream(path);
+        res.type("application/pdf");
         stream.pipe(res);
     }).catch(err => {
         if (err) {

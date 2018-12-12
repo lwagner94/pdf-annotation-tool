@@ -14,7 +14,8 @@ function checkObjectIdParams(req, res, next) {
             const value = req.params[parameterName];
 
             if (!value.match(/^[0-9a-fA-F]{24}$/)) {
-                res.status(400).send("Bad request");
+                res.status(404).send("Not found");
+                return;
             }
         }
     }

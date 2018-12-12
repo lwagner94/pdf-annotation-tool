@@ -1,60 +1,59 @@
 const request = require("supertest");
 const mongoose = require("mongoose");
 const models = require("../db/models");
-const fs = require("fs");
-const path = require("path");
+
+const util = require("./util");
+
 const should = require("chai").should();
 
 
-
-
-function cleanupFiles() {
-    fs.readdir("files-test", (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-            if (file === ".gitkeep")
-                continue;
-
-            fs.unlink(path.join("files-test", file), err => {
-                if (err) throw err;
-            });
-        }
-    });
-}
-
-function createServer() {
-    const app = require("../app");
-    return app.listen(3001);
-}
-
-describe("Test document API", function () {
+describe("Document API", function () {
     let server;
     beforeEach(function () {
-        server = createServer();
+        server = util.createServer();
 
     });
     afterEach(function () {
         server.close();
         models.Document.deleteMany({}).exec();
-        cleanupFiles();
+        util.cleanupFiles();
     });
 
-    it("test upload document", done => {
-         request(server)
-             .post("/api/documents/")
-             .attach("pdf", "test/documents/test.pdf")
-             .expect(201, done);
+    it("should be possible to upload documents", function(done) {
+         util.uploadTestDocument(server).then(response => {
+             response.headers.location.should.match(/api\/documents\/.*/);
+             done();
+         });
     });
 
-    it("test list documents", done => {
+    it("should be possible to get uploaded documents", function(done) {
+        util.uploadTestDocument(server).then(response => {
+            request(server)
+                .get(response.headers.location)
+                .expect("Content-Type", "application/pdf")
+                .expect(200, done);
+        });
+    });
+
+    it("should not be possible to get non-existing documents", function(done) {
         request(server)
-            .post("/api/documents/")
-            .attach("pdf", "test/documents/test.pdf")
-            .expect(201)
+            .delete("/api/documents/abcd")
+            .expect(404, done);
+    });
+
+    it("should not list any documents when none are uploaded", function(done) {
+        request(server)
+            .get("/api/documents")
+            .expect("Content-Type", /json/)
+            .expect(200)
+            .expect([], done);
+    });
+
+
+    it("should be possible to list all documents", function(done) {
+        util.uploadTestDocument(server)
             .then(response => {
                 const location = response.headers.location;
-
                 request(server)
                     .get("/api/documents")
                     .expect("Content-Type", /json/)
@@ -70,15 +69,18 @@ describe("Test document API", function () {
             })
     });
 
-    it("test delete document", done => {
-        request(server)
-            .post("/api/documents/")
-            .attach("pdf", "test/documents/test.pdf")
-            .expect(201)
+    it("should be able to delete uploaded documents", function(done) {
+        util.uploadTestDocument(server)
             .then(response => {
                 request(server)
                     .delete(response.header.location)
                     .expect(200, done);
             });
+    });
+
+    it("should not be possible to delete non-existing documents", function(done) {
+        request(server)
+            .delete("/api/documents/abcd")
+            .expect(404, done);
     });
 });
