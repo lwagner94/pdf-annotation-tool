@@ -19,8 +19,6 @@
                     :pageCount="pageCount"
                     class="header-item"
             />
-
-            <slot name="header"></slot>
         </header>
 
         <PDFData

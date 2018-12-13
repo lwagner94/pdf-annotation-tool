@@ -5,26 +5,17 @@
                 v-bind="{url}"
                 @document-errored="onDocumentErrored"
         >
-            <PDFUploader
-                    v-if="enableUploader"
-                    :documentError="documentError"
-                    @updated="urlUpdated"
-                    slot="header"
-                    class="header-item"
-            />
         </PDFViewer>
     </div>
 </template>
 
 <script>
-    import PDFUploader from '../components/PDFUploader.vue'
     import PDFViewer from '../components/PDFViewer.vue'
 
     export default {
         name: 'app',
 
         components: {
-            PDFUploader,
             PDFViewer,
         },
 
@@ -33,7 +24,6 @@
             return {
                 url: '/api/documents/' + url.searchParams.get("document"),
                 documentError: undefined,
-                enableUploader: process.env.VUE_APP_UPLOAD_ENABLED === 'true',
                 annotationSetID: undefined
             };
         },
