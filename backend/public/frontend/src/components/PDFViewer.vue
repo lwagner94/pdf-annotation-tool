@@ -19,6 +19,10 @@
                     :pageCount="pageCount"
                     class="header-item"
             />
+
+            <AnnotationSet :documentID="documentID">
+
+            </AnnotationSet>
         </header>
 
         <PDFData
@@ -58,6 +62,7 @@
     import PDFPaginator from './PDFPaginator';
     import PDFPreview from './PDFPreview';
     import PDFZoom from './PDFZoom';
+    import AnnotationSet from "./AnnotationSet";
 
     function floor(value, precision) {
         const multiplier = Math.pow(10, precision || 0);
@@ -68,6 +73,7 @@
         name: 'PDFViewer',
 
         components: {
+            AnnotationSet,
             PDFDocument,
             PDFData,
             PDFPaginator,
@@ -78,6 +84,7 @@
 
         props: {
             url: String,
+            documentID: String
         },
 
         data() {

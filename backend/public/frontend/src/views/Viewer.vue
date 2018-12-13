@@ -2,7 +2,7 @@
     <div id="app">
 
         <PDFViewer
-                v-bind="{url}"
+                v-bind="{url, documentID}"
                 @document-errored="onDocumentErrored"
         >
         </PDFViewer>
@@ -24,7 +24,7 @@
             return {
                 url: '/api/documents/' + url.searchParams.get("document"),
                 documentError: undefined,
-                annotationSetID: undefined
+                documentID: url.searchParams.get("document")
             };
         },
 
@@ -36,20 +36,6 @@
             onDocumentErrored(e) {
                 this.documentError = e.text;
             },
-        },
-
-        mounted() {
-            fetch("/api/annotationsets")
-                .then(response => response.json())
-                .then(response => {
-                    for (let annotationset of response) {
-                        if (annotationset.documentID === (new URL(window.location.href)).searchParams.get("document")) {
-                            this.annotationSetID = annotationset.id;
-                            console.log(this.annotationSetID);
-                            break;
-                        }
-                    }
-                });
         }
 
     }
@@ -59,7 +45,8 @@
     body {
         margin: 0;
         padding: 0;
-        background-color: #606f7b;
+        /*background-color: #606f7b;*/
+        background-color: aliceblue;
     }
 
     #app {
@@ -67,11 +54,12 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
-        color: #62637a;
+        /*color: #62637a;*/
+        color: black;
     }
 
     label.form {
-        color: white;
+        color: black;
         font-family: Monaco, 'Courier New', Courier, monospace;
         font-weight: bold;
         margin-bottom: 2em;
