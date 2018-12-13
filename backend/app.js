@@ -33,7 +33,7 @@ app.use(express.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/viewer', express.static('../viewer/dist'));
+app.use('/viewer', express.static('./public/frontend/dist'));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
