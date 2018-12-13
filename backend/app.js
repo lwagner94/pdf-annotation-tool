@@ -6,6 +6,8 @@ var logger = require('morgan');
 const mongoose = require("mongoose");
 
 
+const history = require('connect-history-api-fallback');
+
 let db = "";
 if (process.env.NODE_ENV === "test") {
     db = "mongodb://localhost/pdfannotationtool-test"
@@ -20,6 +22,17 @@ var usersRouter = require('./routes/users');
 var apiRouter = require('./routes/api');
 
 var app = express();
+
+app.use(history({
+    rewrites: [
+        {
+            from: /^\/api\/.*$/,
+            to: function(context) {
+                return context.parsedUrl.pathname;
+            }
+        }
+    ]
+}));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));

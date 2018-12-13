@@ -169,10 +169,13 @@
                 this.$parent.$emit('update-visibility');
             },
 
-            destroyPage(page) {
+            destroyPage(/*page*/) {
                 // PDFPageProxy#_destroy
                 // https://mozilla.github.io/pdf.js/api/draft/PDFPageProxy.html
-                if (page) page._destroy();
+
+
+                // TODO: Investigate why this fixes the page rendering bug
+                //if (page) page._destroy();
 
                 this.destroyRenderTask();
 

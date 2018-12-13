@@ -31,10 +31,10 @@
         data() {
             let url = new URL(window.location.href);
             return {
-                // url: process.env.VUE_APP_PDF_URL,
-                url: '/api/documents/' + url.searchParams.get("name"),
+                url: '/api/documents/' + url.searchParams.get("document"),
                 documentError: undefined,
                 enableUploader: process.env.VUE_APP_UPLOAD_ENABLED === 'true',
+                annotationSetID: undefined
             };
         },
 
@@ -47,6 +47,20 @@
                 this.documentError = e.text;
             },
         },
+
+        mounted() {
+            fetch("/api/annotationsets")
+                .then(response => response.json())
+                .then(response => {
+                    for (let annotationset of response) {
+                        if (annotationset.documentID === (new URL(window.location.href)).searchParams.get("document")) {
+                            this.annotationSetID = annotationset.id;
+                            console.log(this.annotationSetID);
+                            break;
+                        }
+                    }
+                });
+        }
 
     }
 </script>

@@ -81,9 +81,9 @@
         background: white;
         color: #333;
         font-weight: bold;
-        line-height: 1.5em;
-        width: 1.5em;
-        height: 1.5em;
-        font-size: 1.5em;
+        line-height: 1em;
+        width: 1em;
+        height: 1em;
+        font-size: 1em;
     }
 </style>

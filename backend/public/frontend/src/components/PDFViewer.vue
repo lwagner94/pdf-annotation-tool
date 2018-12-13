@@ -143,9 +143,10 @@
         justify-content: center;
         align-items: center;
         flex-wrap: wrap;
-        padding: 1em;
+        padding: 0.5em;
         position: relative;
         z-index: 99;
+        /*height: 3em;*/
     }
 
     .header-item {
@@ -154,7 +155,7 @@
 
     .pdf-viewer .pdf-viewer__document,
     .pdf-viewer .pdf-viewer__preview {
-        top: 70px;
+        top: 6em;
     }
 
     .pdf-viewer__preview {
@@ -164,7 +165,7 @@
     }
 
     .pdf-viewer__document {
-        top: 70px;
+        /*top: 70px;*/
         width: 100%;
         left: 0;
     }
