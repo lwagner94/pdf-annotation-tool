@@ -23,6 +23,10 @@
             <AnnotationSet :documentID="documentID">
 
             </AnnotationSet>
+
+            <DrawModeSelector>
+
+            </DrawModeSelector>
         </header>
 
         <PDFData
@@ -63,6 +67,7 @@
     import PDFPreview from './PDFPreview';
     import PDFZoom from './PDFZoom';
     import AnnotationSet from "./AnnotationSet";
+    import DrawModeSelector from "./DrawModeSelector";
 
     function floor(value, precision) {
         const multiplier = Math.pow(10, precision || 0);
@@ -73,6 +78,7 @@
         name: 'PDFViewer',
 
         components: {
+            DrawModeSelector,
             AnnotationSet,
             PDFDocument,
             PDFData,

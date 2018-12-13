@@ -13,6 +13,7 @@
 <script>
     import debug from 'debug';
     import {fabric} from 'fabric';
+    import EventBus from "@/EventBus"
 
     const log = debug('app:components/PDFPage');
 
@@ -52,7 +53,7 @@
             return {
                 annotations: undefined,
                 showPage: false,
-                enableDrawing: true,
+                enableDrawing: false,
                 startedDrawing: false,
                 drawStartPos: {
                     x: 0,
@@ -237,7 +238,11 @@
                 this.annotations.add(square);
                 this.annotations.renderAll();
 
-                this.enableDrawing = false;
+                EventBus.$emit("set-drawing", false);
+            },
+
+            setDrawingMode(param) {
+                this.enableDrawing = param
             },
 
             updateVisibility() {
@@ -315,17 +320,12 @@
 
         mounted() {
             log(`Page ${this.pageNumber} mounted`);
+            EventBus.$on("set-drawing", this.setDrawingMode);
         },
 
         beforeDestroy() {
             this.destroyPage(this.page);
         },
-
-        // render(h) {
-        //     const {canvasAttrs: attrs} = this;
-        //     return h('canvas', {attrs});
-        //
-        // },
     };
 </script>
 <style>
