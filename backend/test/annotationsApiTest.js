@@ -33,7 +33,7 @@ describe("AnnotationSet API", function () {
         util.cleanupFiles();
     });
 
-    it("should not list any annotations for a new annotation set", function (done) {
+    it("should not list any context for a new annotation set", function (done) {
         request(server)
             .get(path)
             .expect(200)
@@ -43,7 +43,7 @@ describe("AnnotationSet API", function () {
 
     it("should return '404 Not found' for an unknown annotation set", function (done) {
         request(server)
-            .get("/api/annotationsets/aaaaaaaaaaaaaaaaaaaaaaaa/annotations")
+            .get("/api/annotationsets/aaaaaaaaaaaaaaaaaaaaaaaa/context")
             .expect(404, done);
     });
 
@@ -134,7 +134,7 @@ describe("AnnotationSet API", function () {
             .then(response => {
                 const annotationID = getAnnotationID(response);
                 request(server)
-                    .get("/api/annotationsets/aaaaaaaaaaaaaaaaaaaaaaaa/annotations/" + annotationID)
+                    .get("/api/annotationsets/aaaaaaaaaaaaaaaaaaaaaaaa/context/" + annotationID)
                     .expect(404, done)
             });
     });

@@ -12,8 +12,8 @@
 
 <script>
     import debug from 'debug';
-    import {fabric} from 'fabric';
     import EventBus from "@/EventBus"
+    import Annotations from "../annotations"
 
     const log = debug('app:components/PDFPage');
 
@@ -53,12 +53,6 @@
             return {
                 annotations: undefined,
                 showPage: false,
-                enableDrawing: false,
-                startedDrawing: false,
-                drawStartPos: {
-                    x: 0,
-                    y: 0
-                }
 
             }
         },
@@ -149,100 +143,16 @@
 
             drawAnnotations: function() {
                 const context = this.$refs.annotations;
-                this.annotations = new fabric.Canvas(context);
 
                 const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
                 const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
                     .map(dim => Math.ceil(dim / PIXEL_RATIO));
-                this.annotations.setWidth(pixelWidth);
-                this.annotations.setHeight(pixelHeight);
-
-                this.annotations.on("mouse:down", this.mouseDown);
-                this.annotations.on("mouse:move", this.mouseMove);
-                this.annotations.on("mouse:up", this.mouseUp);
-
-
-                var square = new fabric.Textbox("foo", {
-                    width: 100,
-                    height: 100,
-                    left: 100,
-                    top: 100,
-                    backgroundColor: "#000000",
-                    fill: "#FFFFFF",
-                    lockScalingY: true,
-                    fontSize: 20
-                });
-
-                this.annotations.add(square);
-                this.annotations.renderAll();
-
+                this.annotations = new Annotations(context, pixelWidth, pixelHeight);
             },
 
-            mouseDown(opt) {
-                if (!this.enableDrawing)
-                    return;
-
-                const mouse = this.annotations.getPointer(opt.e);
-                this.startedDrawing = true;
-                this.drawStartPos.x = mouse.x;
-                this.drawStartPos.y = mouse.y;
-
-                const square = new fabric.Textbox("foo", {
-                    width: 0,
-                    height: 0,
-                    left: this.drawStartPos.x,
-                    top: this.drawStartPos.y,
-                    backgroundColor: "#000000",
-                    fill: "#FFFFFF",
-                    lockScalingY: true,
-                    fontSize: 20
-                });
-
-                this.annotations.add(square);
-                this.annotations.renderAll();
-                this.annotations.setActiveObject(square);
-            },
-
-            mouseMove(opt) {
-                if (!this.enableDrawing)
-                    return false;
-
-                if(!this.startedDrawing) {
-                    return false;
-                }
-
-                const mouse = this.annotations.getPointer(opt.e);
-
-                const w = Math.abs(mouse.x - this.drawStartPos.x);
-                const h = Math.abs(mouse.y - this.drawStartPos.y);
-
-                if (!w || !h) {
-                    return false;
-                }
-
-                const square = this.annotations.getActiveObject();
-                square.set('width', w).set('height', h);
-                this.annotations.renderAll();
-            },
-
-            mouseUp() {
-                if (!this.enableDrawing)
-                    return false;
-
-                if(this.startedDrawing) {
-                    this.startedDrawing = false;
-                }
-
-                const square = this.annotations.getActiveObject();
-
-                this.annotations.add(square);
-                this.annotations.renderAll();
-
-                EventBus.$emit("set-drawing", false);
-            },
 
             setDrawingMode(param) {
-                this.enableDrawing = param
+                this.annotations.setEnableDrawing(param);
             },
 
             updateVisibility() {
@@ -320,7 +230,6 @@
 
         mounted() {
             log(`Page ${this.pageNumber} mounted`);
-            EventBus.$on("set-drawing", this.setDrawingMode);
         },
 
         beforeDestroy() {

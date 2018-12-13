@@ -45,7 +45,7 @@
                     .then(result => result.json())
                     .then(result => {
                         this.annotations = result;
-                        console.log(this.annotations);
+                        this.$store.commit("setAnnotations", this.annotations);
                     })
             }
         }
