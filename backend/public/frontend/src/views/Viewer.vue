@@ -45,8 +45,8 @@
     body {
         margin: 0;
         padding: 0;
-        /*background-color: #606f7b;*/
-        background-color: aliceblue;
+        background-color: #606f7b;
+        /*background-color: aliceblue;*/
     }
 
     #app {
@@ -54,8 +54,8 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
-        /*color: #62637a;*/
-        color: black;
+        color: #62637a;
+        /*color: black;*/
     }
 
     label.form {
