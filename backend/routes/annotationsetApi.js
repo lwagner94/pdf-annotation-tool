@@ -121,7 +121,7 @@ router.get("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
                 id: annotation._id,
                 setID: annotation.setID,
                 pageNumber: annotation.pageNumber,
-                propertis: annotation.properties
+                properties: annotation.properties
             });
         }
 
