@@ -93,15 +93,10 @@ class Annotations {
             EventBus.$emit("set-drawing", null);
         });
 
-        this.context.on("object:moved", opt => {
-            const annotation = opt.target.annotationInstance;
-            annotation.recalculatePosition();
-            this.storeAnnotation(annotation);
-        });
-
-        this.context.on("object:scaled", opt => {
+        this.context.on("object:modified", opt => {
             const annotation = opt.target.annotationInstance;
             annotation.recalculateSize();
+            annotation.recalculatePosition();
             this.storeAnnotation(annotation);
         });
     }
