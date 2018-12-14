@@ -2,8 +2,7 @@ import Rectangle from "./Rectangle"
 import Textbox from "./Textbox"
 
 
-export default function getAnnotationClass(type) {
-
+export function getAnnotationClass(type) {
     switch (type) {
         case "rectangle":
             return Rectangle;
@@ -12,5 +11,9 @@ export default function getAnnotationClass(type) {
         default:
             throw new Error("Unknown annotation type");
     }
+}
 
+export function getAnnotationClassFromJSON(json) {
+    const obj = JSON.parse(json);
+    return getAnnotationClass(obj.type);
 }

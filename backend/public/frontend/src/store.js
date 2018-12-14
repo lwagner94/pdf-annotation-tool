@@ -7,17 +7,28 @@ const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
     state: {
-        annotations: []
+        annotations: [],
     },
 
     mutations: {
         setAnnotations: (state, annotations) => {
             state.annotations = annotations;
+        },
+
+        storeAnnotation: (state, annotation) => {
+            let index = state.annotations.findIndex(a => a.localID === annotation.localID);
+
+            if (index >= 0) {
+                state.annotations[index] = annotation;
+            }
+            else {
+                state.annotations.push(annotation);
+            }
         }
     },
 
     getters: {
-        getAnnotationsForPage: state => page => {
+        annotationsForPage: state => page => {
             return state.annotations.filter(annotation => annotation.pageNumber === page);
         }
     },

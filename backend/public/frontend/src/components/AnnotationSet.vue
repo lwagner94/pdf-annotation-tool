@@ -9,6 +9,8 @@
 </template>
 
 <script>
+    import {mapGetters} from 'vuex'
+
     export default {
         name: "AnnotationSet",
 
@@ -39,6 +41,12 @@
 
         },
 
+        computed: {
+            ...mapGetters([
+                "addedAnnotations"
+            ])
+        },
+
         watch: {
             activeSetID(id) {
                 fetch(`/api/annotationsets/${id}/annotations`)
@@ -47,6 +55,10 @@
                         this.annotations = result;
                         this.$store.commit("setAnnotations", this.annotations);
                     })
+            },
+
+            addedAnnotations() {
+                console.log("Added annotations: ", this.addedAnnotations);
             }
         }
 

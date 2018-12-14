@@ -1,14 +1,17 @@
 import {fabric} from 'fabric';
+import uuid from "uuid-random"
 import EventBus from "@/EventBus"
 
-import getAnnotationClass from "./registry"
+import {getAnnotationClass, getAnnotationClassFromJSON} from "./registry"
+
+import store from "../store"
 
 
 class Annotations {
 
-    constructor(context, width, height) {
+    constructor(context, width, height, scale, pageNumber) {
         this.context = new fabric.Canvas(context);
-
+        this._pageNumber = pageNumber;
         this.drawMode = false;
         this.startedDrawing = false;
         this.drawStartPos = {
@@ -16,9 +19,14 @@ class Annotations {
             y: 0
         };
 
+        this._scale = scale;
+
+        this._annotations = [];
+
         this.context.setWidth(width);
         this.context.setHeight(height);
         this.registerCallbacks();
+        this.drawAnnotations();
     }
 
     registerCallbacks() {
@@ -33,12 +41,13 @@ class Annotations {
 
             const mouse = self.context.getPointer(opt.e);
             self.startedDrawing = true;
-            self.drawStartPos.x = mouse.x;
-            self.drawStartPos.y = mouse.y;
+            self.drawStartPos.x = this.normalizeCoordinate(mouse.x);
+            self.drawStartPos.y = this.normalizeCoordinate(mouse.y);
 
             const AnnotationClass = getAnnotationClass(self.drawMode);
-            const annotation = new AnnotationClass(self.drawStartPos.x, self.drawStartPos.y, 0, 0);
-
+            const annotation = new AnnotationClass(self.drawStartPos.x,
+                self.drawStartPos.y, 0, 0, this._scale, uuid());
+            this._annotations.push(annotation);
             annotation.addToContext(self.context);
             self.context.renderAll();
             annotation.setAsActiveObject(self.context);
@@ -53,8 +62,8 @@ class Annotations {
 
             const mouse = self.context.getPointer(opt.e);
 
-            const w = Math.abs(mouse.x - self.drawStartPos.x);
-            const h = Math.abs(mouse.y - self.drawStartPos.y);
+            const w = Math.abs(this.normalizeCoordinate(mouse.x) - self.drawStartPos.x);
+            const h = Math.abs(this.normalizeCoordinate(mouse.y) - self.drawStartPos.y);
 
             if (!w || !h) {
                 return false;
@@ -80,24 +89,80 @@ class Annotations {
             annotation.addToContext(self.context);
             self.context.renderAll();
 
+            this.storeAnnotation(annotation);
             EventBus.$emit("set-drawing", null);
         });
 
         this.context.on("object:moved", opt => {
             const annotation = opt.target.annotationInstance;
-            annotation.x = opt.target.left;
-            annotation.y = opt.target.top;
+            annotation.recalculatePosition();
+            this.storeAnnotation(annotation);
         });
 
         this.context.on("object:scaled", opt => {
             const annotation = opt.target.annotationInstance;
-            annotation.width = opt.target.width * opt.target.scaleX;
-            annotation.height = opt.target.height * opt.target.scaleY;
+            annotation.recalculateSize();
+            this.storeAnnotation(annotation);
         });
     }
 
-    draw() {
+    drawAnnotations() {
+        const annotations = store.getters.annotationsForPage(this._pageNumber);
 
+        for (let annotation of annotations) {
+            const AnnotationType = getAnnotationClassFromJSON(annotation.properties);
+            const newAnnotation = AnnotationType.fromJSON(annotation.properties, this._scale, annotation.localID);
+            console.log(newAnnotation);
+            newAnnotation.addToContext(this.context);
+            this._annotations.push(newAnnotation);
+        }
+
+        this.context.renderAll();
+    }
+
+    storeAnnotation(annotation) {
+            store.commit("storeAnnotation", {
+                id: null,
+                localID: annotation.localID,
+                setID: null, // TODO
+                pageNumber: this._pageNumber,
+                properties: annotation.toJSON()
+        });
+    }
+
+    normalizeCoordinate(coord) {
+        return coord / this._scale;
+    }
+
+    render() {
+        this.context.renderAll();
+    }
+
+    dispose() {
+        this.context.dispose();
+        delete this.context;
+    }
+
+    set width(w) {
+        this.context.setWidth(w);
+    }
+
+    set height(h) {
+        this.context.setHeight(h);
+    }
+
+
+
+    set scale(s) {
+        this._scale = s;
+
+        for (let annotation of this._annotations) {
+            annotation.scale = this._scale;
+
+            // This is necessary so that it is possible to move the annotation on it's new position, not sure why.
+            // If we don't do this, the cursor shows the movement-arrows on the old position before scaling
+            annotation.addToContext(this.context);
+        }
     }
 }
 

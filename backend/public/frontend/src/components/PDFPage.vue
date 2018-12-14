@@ -147,7 +147,7 @@
                 const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
                 const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
                     .map(dim => Math.ceil(dim / PIXEL_RATIO));
-                this.annotations = new Annotations(context, pixelWidth, pixelHeight);
+                this.annotations = new Annotations(context, pixelWidth, pixelHeight, this.scale, this.pageNumber);
             },
 
 
@@ -185,15 +185,18 @@
         },
 
         watch: {
-            scale: function() {
+            scale: function(scale) {
                 this.updateVisibility();
 
                 if (this.isElementVisible) {
                     const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
                     const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
                         .map(dim => Math.ceil(dim / PIXEL_RATIO));
-                    this.annotations.setWidth(pixelWidth);
-                    this.annotations.setHeight(pixelHeight);
+                    this.annotations.width = pixelWidth;
+                    this.annotations.height = pixelHeight;
+
+                    this.annotations.scale = scale;
+                    this.annotations.render();
                 }
             },
 
