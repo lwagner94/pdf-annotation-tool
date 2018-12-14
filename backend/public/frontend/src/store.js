@@ -19,6 +19,15 @@ export default new Vuex.Store({
             let index = state.annotations.findIndex(a => a.localID === annotation.localID);
 
             if (index >= 0) {
+
+                if (annotation.hasOwnProperty("id")) {
+                    state.annotations[index].id = annotation.id;
+                }
+                if (annotation.hasOwnProperty("setID")) {
+                    state.annotations[index].setID = annotation.setID;
+                }
+                state.annotations[index].created = annotation.created;
+                state.annotations[index].dirty = annotation.dirty;
                 state.annotations[index].localID = annotation.localID;
                 state.annotations[index].properties = annotation.properties;
                 state.annotations[index].pageNumber = annotation.pageNumber;

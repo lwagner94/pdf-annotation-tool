@@ -97,7 +97,7 @@ class Annotations {
             const annotation = opt.target.annotationInstance;
             annotation.recalculateSize();
             annotation.recalculatePosition();
-            this.storeAnnotation(annotation);
+            this.updateAnnotation(annotation);
         });
     }
 
@@ -116,13 +116,27 @@ class Annotations {
     }
 
     storeAnnotation(annotation) {
-            store.commit("storeAnnotation", {
-                id: null,
-                localID: annotation.localID,
-                setID: null,
-                pageNumber: this._pageNumber,
-                properties: annotation.toJSON()
+        store.commit("storeAnnotation", {
+            localID: annotation.localID,
+            pageNumber: this._pageNumber,
+            properties: annotation.toJSON(),
+            dirty: false,
+            created: true
         });
+
+        EventBus.$emit("annotations-modified");
+    }
+
+    updateAnnotation(annotation) {
+        store.commit("storeAnnotation", {
+            localID: annotation.localID,
+            pageNumber: this._pageNumber,
+            properties: annotation.toJSON(),
+            dirty: true,
+            created: false
+        });
+
+        EventBus.$emit("annotations-modified");
     }
 
     normalizeCoordinate(coord) {

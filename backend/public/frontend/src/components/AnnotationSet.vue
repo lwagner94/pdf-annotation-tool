@@ -12,6 +12,8 @@
     import {mapGetters} from 'vuex'
     import uuid from "uuid-random"
 
+    import EventBus from "@/EventBus"
+
     export default {
         name: "AnnotationSet",
 
@@ -39,40 +41,11 @@
                     }
                 });
 
-        },
-
-        computed: {
-            ...mapGetters([
-                "annotations"
-            ])
-        },
-
-        watch: {
-            activeSetID(id) {
-                fetch(`/api/annotationsets/${id}/annotations`)
-                    .then(result => result.json())
-                    .then(result => {
-                        let annotations = [];
-
-                        for (let annotation of result) {
-                            annotations.push({
-                                id: annotation.id,
-                                setID: annotation.setID,
-                                pageNumber: annotation.pageNumber,
-                                properties: annotation.properties,
-                                localID: uuid()
-                            });
-                        }
-
-                        this.$store.commit("setAnnotations", annotations);
-                    })
-            },
-
-            annotations() {
+            EventBus.$on("annotations-modified", () => {
                 for (let annotation of this.annotations) {
-                    if (annotation.id === null) {
+                      if (annotation.created) {
 
-                        console.log("New/Modified annotation: ", annotation);
+                        console.log("New annotation: ", annotation);
                         let annotationToPost = {
                             setID: this.activeSetID,
                             pageNumber: annotation.pageNumber,
@@ -96,12 +69,76 @@
                                     setID: this.activeSetID,
                                     pageNumber: annotation.pageNumber,
                                     properties: annotation.properties,
-                                    localID: annotation.localID
+                                    localID: annotation.localID,
+                                    dirty: false,
+                                    created: false
                                 });
-                            })
+                            });
                     }
+                    else if (annotation.dirty) {
+                        console.log("Modified annotation: ", annotation);
+                        let annotationToPost = {
+                            pageNumber: annotation.pageNumber,
+                            properties: annotation.properties
+                        };
+
+                        fetch(`/api/annotationsets/${this.activeSetID}/annotations/${annotation.id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(annotationToPost)
+                        })
+                            .then(response => {
+                                const location = response.headers.get("location");
+                                const id = location.split("/")[5];
+                                console.log(location, id);
+
+                                this.$store.commit("storeAnnotation", {
+                                    id: id,
+                                    setID: this.activeSetID,
+                                    pageNumber: annotation.pageNumber,
+                                    properties: annotation.properties,
+                                    localID: annotation.localID,
+                                    dirty: false,
+                                    created: false
+                                });
+                            });
+                    }
+
                 }
-            }
+            });
+
+        },
+
+        computed: {
+            ...mapGetters([
+                "annotations"
+            ])
+        },
+
+        watch: {
+            activeSetID(id) {
+                fetch(`/api/annotationsets/${id}/annotations`)
+                    .then(result => result.json())
+                    .then(result => {
+                        let annotations = [];
+
+                        for (let annotation of result) {
+                            annotations.push({
+                                id: annotation.id,
+                                setID: annotation.setID,
+                                pageNumber: annotation.pageNumber,
+                                properties: annotation.properties,
+                                localID: uuid(),
+                                dirty: false
+                            });
+                        }
+
+                        this.$store.commit("setAnnotations", annotations);
+                    })
+            },
+
         }
 
     }
