@@ -92,7 +92,7 @@ router.get("/:ObjectId_set", checkObjectIdParams, (req, res) => {
 
 
 router.delete("/:ObjectId_set", checkObjectIdParams, (req, res) => {
-    // TODO: Remove all context which reference this annotation set
+    // TODO: Remove all annotations which reference this annotation set
     models.AnnotationSet.findById(req.params.ObjectId_set).then(result => {
         if (!result) {
             throw new HTTPError(404);
@@ -106,7 +106,7 @@ router.delete("/:ObjectId_set", checkObjectIdParams, (req, res) => {
 });
 
 
-router.get("/:ObjectId_set/context", checkObjectIdParams, (req, res) => {
+router.get("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
     models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
         if (!set) {
             throw new HTTPError(404);
@@ -132,7 +132,7 @@ router.get("/:ObjectId_set/context", checkObjectIdParams, (req, res) => {
     })
 });
 
-router.post("/:ObjectId_set/context", checkObjectIdParams, (req, res) => {
+router.post("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
     if (!req.body.hasOwnProperty("pageNumber")) {
         new HTTPError(400).send(res);
         return;
@@ -164,7 +164,7 @@ router.post("/:ObjectId_set/context", checkObjectIdParams, (req, res) => {
     })
 });
 
-router.get("/:ObjectId_set/context/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+router.get("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
     models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
         if (!set) {
             throw new HTTPError(404);
@@ -188,7 +188,7 @@ router.get("/:ObjectId_set/context/:ObjectId_annotation", checkObjectIdParams, (
 });
 
 
-router.put("/:ObjectId_set/context/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+router.put("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
     if (!req.body.hasOwnProperty("pageNumber")) {
         new HTTPError(400).send(res);
         return;
@@ -223,7 +223,7 @@ router.put("/:ObjectId_set/context/:ObjectId_annotation", checkObjectIdParams, (
     });
 });
 
-router.delete("/:ObjectId_set/context/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+router.delete("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
     models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
         if (!set) {
             throw new HTTPError(404);

@@ -1,12 +1,15 @@
 import {fabric} from 'fabric';
 import EventBus from "@/EventBus"
 
+import getAnnotationClass from "./registry"
+
+
 class Annotations {
 
     constructor(context, width, height) {
         this.context = new fabric.Canvas(context);
 
-        this.enableDrawing = false;
+        this.drawMode = false;
         this.startedDrawing = false;
         this.drawStartPos = {
             x: 0,
@@ -15,32 +18,17 @@ class Annotations {
 
         this.context.setWidth(width);
         this.context.setHeight(height);
-
-
-        var square = new fabric.Textbox("foo", {
-            width: 100,
-            height: 100,
-            left: 100,
-            top: 100,
-            backgroundColor: "#000000",
-            fill: "#FFFFFF",
-            lockScalingY: true,
-            fontSize: 20
-        });
-
-        this.context.add(square);
-        this.context.renderAll();
         this.registerCallbacks();
     }
 
     registerCallbacks() {
         const self = this;
-        EventBus.$on("set-drawing", enable => {
-            self.enableDrawing = enable;
+        EventBus.$on("set-drawing", mode => {
+            self.drawMode = mode;
         });
 
         this.context.on("mouse:down", opt => {
-            if (!self.enableDrawing)
+            if (!self.drawMode)
                 return;
 
             const mouse = self.context.getPointer(opt.e);
@@ -48,23 +36,15 @@ class Annotations {
             self.drawStartPos.x = mouse.x;
             self.drawStartPos.y = mouse.y;
 
-            const square = new fabric.Textbox("foo", {
-                width: 0,
-                height: 0,
-                left: self.drawStartPos.x,
-                top: self.drawStartPos.y,
-                backgroundColor: "#000000",
-                fill: "#FFFFFF",
-                lockScalingY: true,
-                fontSize: 20
-            });
+            const AnnotationClass = getAnnotationClass(self.drawMode);
+            const annotation = new AnnotationClass(self.drawStartPos.x, self.drawStartPos.y, 0, 0);
 
-            self.context.add(square);
+            annotation.addToContext(self.context);
             self.context.renderAll();
-            self.context.setActiveObject(square);
+            annotation.setAsActiveObject(self.context);
         });
         this.context.on("mouse:move", opt => {
-            if (!self.enableDrawing)
+            if (!self.drawMode)
                 return false;
 
             if(!self.startedDrawing) {
@@ -80,28 +60,42 @@ class Annotations {
                 return false;
             }
 
-            const square = self.context.getActiveObject();
-            square.set('width', w).set('height', h);
+            const object = self.context.getActiveObject();
+            const annotation = object.annotationInstance;
+
+            annotation.width = w;
+            annotation.height = h;
             self.context.renderAll();
         });
         this.context.on("mouse:up", opt => {
-            console.log("Mouse up");
-            if (!self.enableDrawing)
+            if (!self.drawMode)
                 return false;
 
             if(self.startedDrawing) {
                 self.startedDrawing = false;
             }
 
-            const square = self.context.getActiveObject();
-
-            self.context.add(square);
+            const object = self.context.getActiveObject();
+            const annotation = object.annotationInstance;
+            annotation.addToContext(self.context);
             self.context.renderAll();
 
-            EventBus.$emit("set-drawing", false);
+            EventBus.$emit("set-drawing", null);
+        });
+
+        this.context.on("object:moved", opt => {
+            const annotation = opt.target.annotationInstance;
+            annotation.x = opt.target.left;
+            annotation.y = opt.target.top;
+        });
+
+        this.context.on("object:scaled", opt => {
+            const annotation = opt.target.annotationInstance;
+            annotation.width = opt.target.width * opt.target.scaleX;
+            annotation.height = opt.target.height * opt.target.scaleY;
         });
     }
-    
+
     draw() {
 
     }

@@ -1,5 +1,9 @@
 <template>
-    <button @click="toggleDrawing">{{buttonText}}</button>
+    <div>
+        <button @click="toggleDrawing('textbox')">Textbox</button>
+        <button @click="toggleDrawing('rectangle')">Rectangle</button>
+        {{buttonText}}
+    </div>
 </template>
 
 <script>
@@ -9,34 +13,29 @@
 
         data() {
             return {
-                drawingEnabled: false
+                drawMode: null
             }
         },
 
         methods: {
-            toggleDrawing() {
-                EventBus.$emit("set-drawing", !this.drawingEnabled);
+            toggleDrawing(mode) {
+                EventBus.$emit("set-drawing", mode);
             }
         },
 
         mounted() {
             EventBus.$on("set-drawing", drawing => {
-                if (drawing) {
-                    this.drawingEnabled = true;
-                }
-                else {
-                    this.drawingEnabled = false;
-                }
+                this.drawMode = drawing;
             });
         },
 
         computed: {
             buttonText() {
-                if (this.drawingEnabled) {
-                    return "Disable drawing mode";
+                if (this.drawMode) {
+                    return "Drawing " + this.drawMode;
                 }
 
-                return "Enable drawing mode";
+                return "Drawing disabled";
             }
         }
     }
