@@ -119,7 +119,7 @@ class Annotations {
             store.commit("storeAnnotation", {
                 id: null,
                 localID: annotation.localID,
-                setID: null, // TODO
+                setID: null,
                 pageNumber: this._pageNumber,
                 properties: annotation.toJSON()
         });

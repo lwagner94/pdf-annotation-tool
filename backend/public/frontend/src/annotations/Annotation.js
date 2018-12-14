@@ -2,6 +2,7 @@
 export default class Annotation {
     constructor(object, x, y, width, height, scale, localID) {
         this.localID = localID;
+
         this.object = object;
         this._x = x;
         this._y = y;

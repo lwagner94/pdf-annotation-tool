@@ -19,7 +19,9 @@ export default new Vuex.Store({
             let index = state.annotations.findIndex(a => a.localID === annotation.localID);
 
             if (index >= 0) {
-                state.annotations[index] = annotation;
+                state.annotations[index].localID = annotation.localID;
+                state.annotations[index].properties = annotation.properties;
+                state.annotations[index].pageNumber = annotation.pageNumber;
             }
             else {
                 state.annotations.push(annotation);
@@ -30,6 +32,9 @@ export default new Vuex.Store({
     getters: {
         annotationsForPage: state => page => {
             return state.annotations.filter(annotation => annotation.pageNumber === page);
+        },
+        annotations: state => {
+            return state.annotations;
         }
     },
 

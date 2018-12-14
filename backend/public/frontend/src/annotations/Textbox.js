@@ -4,7 +4,6 @@ import {fabric} from "fabric";
 
 export default class Textbox extends Annotation {
     constructor(x, y, width, height, scale, localID) {
-        console.log("foo: ", scale);
         let object = new fabric.Textbox("foo", {
             width: width,
             height: height,
