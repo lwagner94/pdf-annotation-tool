@@ -20,6 +20,10 @@ export default class Annotation {
         context.add(this.object);
     }
 
+    removeFromContext(context) {
+        context.remove(this.object);
+    }
+
     setAsActiveObject(context) {
         context.setActiveObject(this.object);
     }

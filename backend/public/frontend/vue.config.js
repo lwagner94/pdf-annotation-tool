@@ -22,5 +22,5 @@ module.exports = {
             .use('file-loader')
             .loader('vue-svg-loader')
     },
-    baseUrl: './'
+    // baseUrl: './'
 };

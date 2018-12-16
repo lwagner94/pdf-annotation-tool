@@ -9,8 +9,8 @@ import store from "../store"
 
 class Annotations {
 
-    constructor(context, width, height, scale, pageNumber) {
-        this.context = new fabric.Canvas(context);
+    constructor(context, width, height, scale, pageNumber, menu) {
+        this.context = new fabric.Canvas(context, {fireRightClick: true, stopContextMenu: true});
         this._pageNumber = pageNumber;
         this.drawMode = false;
         this.startedDrawing = false;
@@ -27,6 +27,8 @@ class Annotations {
         this.context.setHeight(height);
         this.registerCallbacks();
         this.drawAnnotations();
+        this.menu = menu;
+        this.menuVisible = false;
     }
 
     registerCallbacks() {
@@ -36,13 +38,40 @@ class Annotations {
         });
 
         this.context.on("mouse:down", opt => {
-            if (!self.drawMode)
-                return;
 
             const mouse = self.context.getPointer(opt.e);
+
+            if (opt.button === 3 && opt.target) {
+                this.menu.setVisible(true);
+                this.menu.setPosition(mouse.x, mouse.y);
+                this.menu.setMenuEntries([
+                    {
+                        identifier: "remove",
+                        text: "Remove Annotation",
+                        action: () => {
+                            self.removeAnnotation(opt.target.annotationInstance);
+                        }
+                    }
+                ]);
+            }
+            else {
+                this.menu.setVisible(false);
+            }
+            //
+            // if (opt.target) {
+            //     this.context.remove(opt.target);
+            // }
+
+            if (!self.drawMode) {
+                return;
+
+            }
             self.startedDrawing = true;
             self.drawStartPos.x = this.normalizeCoordinate(mouse.x);
             self.drawStartPos.y = this.normalizeCoordinate(mouse.y);
+
+
+
 
             const AnnotationClass = getAnnotationClass(self.drawMode);
             const annotation = new AnnotationClass(self.drawStartPos.x,
@@ -86,6 +115,7 @@ class Annotations {
 
             const object = self.context.getActiveObject();
             const annotation = object.annotationInstance;
+            annotation.removeFromContext(self.context);
             annotation.addToContext(self.context);
             self.context.renderAll();
 
@@ -107,12 +137,33 @@ class Annotations {
         for (let annotation of annotations) {
             const AnnotationType = getAnnotationClassFromJSON(annotation.properties);
             const newAnnotation = AnnotationType.fromJSON(annotation.properties, this._scale, annotation.localID);
-            console.log(newAnnotation);
             newAnnotation.addToContext(this.context);
             this._annotations.push(newAnnotation);
         }
 
         this.context.renderAll();
+    }
+
+    removeAnnotation(annotation) {
+        console.log("Remove annotation: ", annotation, this);
+        annotation.removeFromContext(this.context);
+
+        store.commit("storeAnnotation", {
+            localID: annotation.localID,
+            pageNumber: this._pageNumber,
+            properties: annotation.toJSON(),
+            dirty: false,
+            created: false,
+            deleted: true
+        });
+
+        EventBus.$emit("annotations-modified");
+
+        const index = this._annotations.findIndex(a => a.localID === annotation.localID);
+
+        if (index > -1) {
+            this._annotations.splice(index, 1);
+        }
     }
 
     storeAnnotation(annotation) {
@@ -121,7 +172,8 @@ class Annotations {
             pageNumber: this._pageNumber,
             properties: annotation.toJSON(),
             dirty: false,
-            created: true
+            created: true,
+            deleted: false
         });
 
         EventBus.$emit("annotations-modified");
@@ -133,7 +185,8 @@ class Annotations {
             pageNumber: this._pageNumber,
             properties: annotation.toJSON(),
             dirty: true,
-            created: false
+            created: false,
+            deleted: false
         });
 
         EventBus.$emit("annotations-modified");
@@ -170,6 +223,7 @@ class Annotations {
 
             // This is necessary so that it is possible to move the annotation on it's new position, not sure why.
             // If we don't do this, the cursor shows the movement-arrows on the old position before scaling
+            annotation.removeFromContext(this.context);
             annotation.addToContext(this.context);
         }
     }

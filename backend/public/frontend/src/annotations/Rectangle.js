@@ -11,7 +11,8 @@ export default class Rectangle extends Annotation {
             top: y,
             fill: '#000',
             scaleX: scale,
-            scaleY: scale
+            scaleY: scale,
+            fireRightClick: true
         });
 
         super(object, x, y, width, height, scale, localID);

@@ -42,10 +42,11 @@
                 });
 
             EventBus.$on("annotations-modified", () => {
-                for (let annotation of this.annotations) {
-                      if (annotation.created) {
+                console.log("fired");
 
-                        console.log("New annotation: ", annotation);
+                for (let annotation of this.annotations) {
+                    if (annotation.created) {
+
                         let annotationToPost = {
                             setID: this.activeSetID,
                             pageNumber: annotation.pageNumber,
@@ -71,12 +72,11 @@
                                     properties: annotation.properties,
                                     localID: annotation.localID,
                                     dirty: false,
-                                    created: false
+                                    created: false,
+                                    deleted: false
                                 });
                             });
-                    }
-                    else if (annotation.dirty) {
-                        console.log("Modified annotation: ", annotation);
+                    } else if (annotation.dirty) {
                         let annotationToPost = {
                             pageNumber: annotation.pageNumber,
                             properties: annotation.properties
@@ -90,9 +90,10 @@
                             body: JSON.stringify(annotationToPost)
                         })
                             .then(response => {
+                                console.log(response.headers);
+
                                 const location = response.headers.get("location");
                                 const id = location.split("/")[5];
-                                console.log(location, id);
 
                                 this.$store.commit("storeAnnotation", {
                                     id: id,
@@ -101,7 +102,18 @@
                                     properties: annotation.properties,
                                     localID: annotation.localID,
                                     dirty: false,
-                                    created: false
+                                    created: false,
+                                    deleted: false
+                                });
+                            });
+                    } else if (annotation.deleted) {
+                        fetch(`/api/annotationsets/${this.activeSetID}/annotations/${annotation.id}`, {
+                            method: "DELETE",
+                        })
+                            .then(() => {
+                                // TODO: Check error!
+                                this.$store.commit("deleteAnnotation", {
+                                    localID: annotation.localID,
                                 });
                             });
                     }

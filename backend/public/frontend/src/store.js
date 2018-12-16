@@ -18,7 +18,7 @@ export default new Vuex.Store({
         storeAnnotation: (state, annotation) => {
             let index = state.annotations.findIndex(a => a.localID === annotation.localID);
 
-            if (index >= 0) {
+            if (index > -1) {
 
                 if (annotation.hasOwnProperty("id")) {
                     state.annotations[index].id = annotation.id;
@@ -28,12 +28,21 @@ export default new Vuex.Store({
                 }
                 state.annotations[index].created = annotation.created;
                 state.annotations[index].dirty = annotation.dirty;
+                state.annotations[index].deleted = annotation.deleted;
                 state.annotations[index].localID = annotation.localID;
                 state.annotations[index].properties = annotation.properties;
                 state.annotations[index].pageNumber = annotation.pageNumber;
             }
             else {
                 state.annotations.push(annotation);
+            }
+        },
+
+        deleteAnnotation: (state, annotation) => {
+            let index = state.annotations.findIndex(a => a.localID === annotation.localID);
+
+            if (index > -1) {
+                state.annotations.splice(index, 1);
             }
         }
     },

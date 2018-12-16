@@ -5,6 +5,8 @@
                 <canvas ref="annotations" ></canvas>
             </div>
             <canvas ref="page" v-bind="canvasAttrs"></canvas>
+            <context-menu ref="menu">
+            </context-menu>
         </div>
     </div>
 
@@ -18,10 +20,13 @@
     const log = debug('app:components/PDFPage');
 
     import {PIXEL_RATIO} from '../utils/constants';
+    import ContextMenu from "./ContextMenu";
+
+    document.addEventListener('contextmenu', event => event.preventDefault());
 
     export default {
         name: 'PDFPage',
-
+        components: {ContextMenu},
         props: {
             page: {
                 type: Object, // instance of PDFPageProxy returned from pdf.getPage
@@ -147,7 +152,7 @@
                 const {width: actualSizeWidth, height: actualSizeHeight} = this.actualSizeViewport;
                 const [pixelWidth, pixelHeight] = [actualSizeWidth, actualSizeHeight]
                     .map(dim => Math.ceil(dim / PIXEL_RATIO));
-                this.annotations = new Annotations(context, pixelWidth, pixelHeight, this.scale, this.pageNumber);
+                this.annotations = new Annotations(context, pixelWidth, pixelHeight, this.scale, this.pageNumber, this.$refs.menu);
             },
 
 
@@ -213,6 +218,40 @@
 
                 if (isElementVisible) {
                     this.$nextTick(() => {
+
+                        // const menu = document.querySelector(".menu");
+                        const menu = this.$refs.menu;
+                        // console.log(menu);
+                        // let menuVisible = false;
+                        //
+                        // const toggleMenu = command => {
+                        //     menu.style.display = command === "show" ? "block" : "none";
+                        //     menuVisible = !menuVisible;
+                        // };
+                        //
+                        // const setPosition = ({ top, left }) => {
+                        //     menu.style.left = `${left}px`;
+                        //     menu.style.top = `${top}px`;
+                        //     toggleMenu("show");
+                        // };
+                        //
+                        // window.addEventListener("click", e => {
+                        //     if(menuVisible)toggleMenu("hide");
+                        // });
+                        //
+                        // window.addEventListener("contextmenu", e => {
+                        //     e.preventDefault();
+                        //     const origin = {
+                        //         left: e.pageX,
+                        //         top: e.pageY
+                        //     };
+                        //     setPosition(origin);
+                        //     return false;
+                        // });
+
+
+
+
                         this.drawPage();
                         this.drawAnnotations();
                     });
@@ -233,6 +272,7 @@
 
         mounted() {
             log(`Page ${this.pageNumber} mounted`);
+
         },
 
         beforeDestroy() {
@@ -240,7 +280,7 @@
         },
     };
 </script>
-<style>
+<style lang="less">
     #foobar {
         display: inline-block;
         position: relative;
