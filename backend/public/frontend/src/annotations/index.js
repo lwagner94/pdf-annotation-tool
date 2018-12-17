@@ -39,13 +39,8 @@ class Annotations {
 
         this.context.on("mouse:down", opt => {
             let mouse;
-            try {
-                mouse = self.context.getPointer(opt.e);
-            }
-            catch (e) {
-                // console.log(e);
-                return;
-            }
+
+            mouse = self.context.getPointer(opt.e);
 
 
             if (opt.button === 3 && opt.target) {
@@ -69,20 +64,28 @@ class Annotations {
                 return;
 
             }
-            self.startedDrawing = true;
+
             self.drawStartPos.x = this.normalizeCoordinate(mouse.x);
             self.drawStartPos.y = this.normalizeCoordinate(mouse.y);
 
 
-
-
             const AnnotationClass = getAnnotationClass(self.drawMode);
-            const annotation = new AnnotationClass(self.drawStartPos.x,
+            const annotation = new AnnotationClass(self.context, self.drawStartPos.x,
                 self.drawStartPos.y, 0, 0, this._scale, uuid());
             this._annotations.push(annotation);
-            annotation.addToContext(self.context);
+
+            if (AnnotationClass.drawable()) {
+                self.startedDrawing = true;
+            }
+            else {
+                this.storeAnnotation(annotation);
+                EventBus.$emit("set-drawing", null);
+            }
+
+
+            annotation.addToContext();
             self.context.renderAll();
-            annotation.setAsActiveObject(self.context);
+            annotation.setAsActiveObject();
         });
         this.context.on("mouse:move", opt => {
             if (!self.drawMode)
@@ -118,8 +121,8 @@ class Annotations {
 
             const object = self.context.getActiveObject();
             const annotation = object.annotationInstance;
-            annotation.removeFromContext(self.context);
-            annotation.addToContext(self.context);
+            annotation.removeFromContext();
+            annotation.addToContext();
             self.context.renderAll();
 
             this.storeAnnotation(annotation);
@@ -145,8 +148,8 @@ class Annotations {
 
         for (let annotation of annotations) {
             const AnnotationType = getAnnotationClassFromJSON(annotation.properties);
-            const newAnnotation = AnnotationType.fromJSON(annotation.properties, this._scale, annotation.localID);
-            newAnnotation.addToContext(this.context);
+            const newAnnotation = AnnotationType.fromJSON(this.context, annotation.properties, this._scale, annotation.localID);
+            newAnnotation.addToContext();
             this._annotations.push(newAnnotation);
         }
 
@@ -155,7 +158,7 @@ class Annotations {
 
     removeAnnotation(annotation) {
         console.log("Remove annotation: ", annotation, this);
-        annotation.removeFromContext(this.context);
+        annotation.removeFromContext();
 
         store.commit("storeAnnotation", {
             localID: annotation.localID,
@@ -232,8 +235,8 @@ class Annotations {
 
             // This is necessary so that it is possible to move the annotation on it's new position, not sure why.
             // If we don't do this, the cursor shows the movement-arrows on the old position before scaling
-            annotation.removeFromContext(this.context);
-            annotation.addToContext(this.context);
+            annotation.removeFromContext();
+            annotation.addToContext();
         }
     }
 }

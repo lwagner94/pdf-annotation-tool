@@ -3,21 +3,21 @@ import {fabric} from "fabric";
 
 
 export default class Textbox extends Annotation {
-    constructor(x, y, width, height, scale, localID) {
+    constructor(context, x, y, width, height, scale, localID) {
         let object = new fabric.Textbox("foo", {
             width: width,
             height: height,
             left: x * scale,
             top: y * scale,
-            backgroundColor: "#000000",
-            fill: "#FFFFFF",
+            backgroundColor: "rgba(255, 255, 200, 1)",
+            fill: "black",
             lockScalingY: true,
             fontSize: 20,
             scaleX: scale,
             scaleY: scale
         });
 
-        super(object, x, y, width, height, scale, localID);
+        super(context, object, x, y, width, height, scale, localID);
         this.annotationType = "textbox";
     }
 
@@ -36,14 +36,18 @@ export default class Textbox extends Annotation {
         return JSON.stringify(state);
     }
 
-    static fromJSON(properties, initialScale, localID) {
+    static fromJSON(context, properties, initialScale, localID) {
         const state = JSON.parse(properties);
 
-        const annotation = new Textbox(state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
+        const annotation = new Textbox(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
 
         annotation.object.text = state.data.text;
 
         return annotation;
+    }
+
+    static drawable() {
+        return true;
     }
 
 }

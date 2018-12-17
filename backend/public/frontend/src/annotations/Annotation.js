@@ -1,6 +1,7 @@
 
 export default class Annotation {
-    constructor(object, x, y, width, height, scale, localID) {
+    constructor(context, object, x, y, width, height, scale, localID) {
+        this.context = context;
         this.localID = localID;
 
         this.object = object;
@@ -16,16 +17,16 @@ export default class Annotation {
     }
 
 
-    addToContext(context) {
-        context.add(this.object);
+    addToContext() {
+        this.context.add(this.object);
     }
 
-    removeFromContext(context) {
-        context.remove(this.object);
+    removeFromContext() {
+        this.context.remove(this.object);
     }
 
-    setAsActiveObject(context) {
-        context.setActiveObject(this.object);
+    setAsActiveObject() {
+        this.context.setActiveObject(this.object);
     }
 
     handleDoubleClick(context) {
@@ -47,6 +48,10 @@ export default class Annotation {
     }
 
     static fromJSON(properties, localID) {
+        throw new Error("Invalid use of abstract class");
+    }
+
+    static drawable() {
         throw new Error("Invalid use of abstract class");
     }
 

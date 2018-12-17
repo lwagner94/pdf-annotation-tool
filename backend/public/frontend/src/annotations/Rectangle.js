@@ -3,7 +3,7 @@ import {fabric} from "fabric";
 
 
 export default class Rectangle extends Annotation {
-    constructor(x, y, width, height, scale, localID) {
+    constructor(context, x, y, width, height, scale, localID) {
         let object = new fabric.Rect({
             width: width,
             height: height,
@@ -15,7 +15,7 @@ export default class Rectangle extends Annotation {
             fireRightClick: true
         });
 
-        super(object, x, y, width, height, scale, localID);
+        super(context, object, x, y, width, height, scale, localID);
     }
 
     toJSON() {
@@ -32,11 +32,15 @@ export default class Rectangle extends Annotation {
         return JSON.stringify(state);
     }
 
-    static fromJSON(properties, initialScale, localID) {
+    static fromJSON(context, properties, initialScale, localID) {
         const state = JSON.parse(properties);
 
-        const annotation = new Rectangle(state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
+        const annotation = new Rectangle(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
 
         return annotation;
+    }
+
+    static drawable() {
+        return true;
     }
 }
