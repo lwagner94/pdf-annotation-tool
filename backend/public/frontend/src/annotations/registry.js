@@ -1,5 +1,6 @@
 import Rectangle from "./Rectangle"
 import Textbox from "./Textbox"
+import StickyNote from "./StickyNote"
 
 
 export function getAnnotationClass(type) {
@@ -8,6 +9,8 @@ export function getAnnotationClass(type) {
             return Rectangle;
         case "textbox":
             return Textbox;
+        case "stickynote":
+            return StickyNote;
         default:
             throw new Error("Unknown annotation type");
     }

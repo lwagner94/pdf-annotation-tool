@@ -42,8 +42,6 @@
                 });
 
             EventBus.$on("annotations-modified", () => {
-                console.log("fired");
-
                 for (let annotation of this.annotations) {
                     if (annotation.created) {
 
@@ -90,8 +88,6 @@
                             body: JSON.stringify(annotationToPost)
                         })
                             .then(response => {
-                                console.log(response.headers);
-
                                 const location = response.headers.get("location");
                                 const id = location.split("/")[5];
 

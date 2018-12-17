@@ -9,7 +9,7 @@ export default class Rectangle extends Annotation {
             height: height,
             left: x,
             top: y,
-            fill: '#000',
+            fill: 'rgba(255, 255, 200, 0.7)',
             scaleX: scale,
             scaleY: scale,
             fireRightClick: true

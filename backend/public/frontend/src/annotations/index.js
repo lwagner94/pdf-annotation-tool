@@ -38,8 +38,15 @@ class Annotations {
         });
 
         this.context.on("mouse:down", opt => {
+            let mouse;
+            try {
+                mouse = self.context.getPointer(opt.e);
+            }
+            catch (e) {
+                // console.log(e);
+                return;
+            }
 
-            const mouse = self.context.getPointer(opt.e);
 
             if (opt.button === 3 && opt.target) {
                 this.menu.setVisible(true);
@@ -57,10 +64,6 @@ class Annotations {
             else {
                 this.menu.setVisible(false);
             }
-            //
-            // if (opt.target) {
-            //     this.context.remove(opt.target);
-            // }
 
             if (!self.drawMode) {
                 return;
@@ -128,6 +131,12 @@ class Annotations {
             annotation.recalculateSize();
             annotation.recalculatePosition();
             this.updateAnnotation(annotation);
+        });
+
+        this.context.on("mouse:dblclick", opt => {
+            if (opt.target) {
+                opt.target.annotationInstance.handleDoubleClick(self.context);
+            }
         });
     }
 

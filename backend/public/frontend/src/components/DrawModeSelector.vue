@@ -2,6 +2,7 @@
     <div>
         <button @click="toggleDrawing('textbox')">Textbox</button>
         <button @click="toggleDrawing('rectangle')">Rectangle</button>
+        <button @click="toggleDrawing('stickynote')">Sticky Note</button>
         {{buttonText}}
     </div>
 </template>

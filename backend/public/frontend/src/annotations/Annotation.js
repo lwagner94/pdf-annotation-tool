@@ -28,6 +28,10 @@ export default class Annotation {
         context.setActiveObject(this.object);
     }
 
+    handleDoubleClick(context) {
+
+    }
+
     recalculateSize() {
         this.width = this.object.width * (this.object.scaleX / this._scale);
         this.height = this.object.height * (this.object.scaleY / this._scale);
