@@ -15,12 +15,8 @@
 
         <button @click="showUploadDialog()">Upload</button>
 
-        <!-- The Modal -->
-        <div v-show="modalVisible" ref="modal" class="modal">
-
-            <!-- Modal content -->
-            <div class="modal-content">
-                <span class="close" @click="setVisible(false)">&times;</span>
+        <modal-dialog ref="modal">
+            <div>
                 <div v-show="uploadVisible">
                     <input ref="fileField" type="file" accept="application/pdf">
                     <button @click="uploadDocument">Upload</button>
@@ -30,19 +26,17 @@
                     <button @click="deleteDocument()">Yes</button>
                     <button @click="setVisible(false)">No</button>
                 </div>
-
-
             </div>
-
-        </div>
+        </modal-dialog>
     </div>
 </template>
 
 <script>
 
+    import ModalDialog from "../components/ModalDialog";
     export default {
         name: "Documents",
-
+        components: {ModalDialog},
         data() {
             return {
                 documents: [],
@@ -70,8 +64,12 @@
                     method: "DELETE",
                 }).then(response => {
                     this.document = undefined;
-                    this.getDocuments();
-                    this.setVisible(false);
+
+                    setTimeout(() => {
+                        this.getDocuments();
+                        this.setVisible(false);
+                    }, 100);
+
                 })
             },
 
@@ -91,7 +89,7 @@
             },
 
             setVisible(visible) {
-                this.modalVisible = visible;
+                this.$refs.modal.setVisible(visible);
             },
 
             showDeletionDialog(document) {

@@ -185,6 +185,63 @@ router.get("/:ObjectId_set/export", checkObjectIdParams, async (req, res) => {
     }
 });
 
+router.post("/import", checkObjectIdParams, async (req, res) => {
+    try {
+        if (!req.body.hasOwnProperty("documentID")) {
+            throw new HTTPError(400);
+        }
+
+        if (!req.body.hasOwnProperty("importedFile")) {
+            throw new HTTPError(400);
+        }
+
+        const importedFile = JSON.parse(req.body.importedFile);
+
+        const document = await models.Document.findById(req.body.documentID);
+
+        if (!document) {
+            throw new HTTPError(400)
+        }
+
+        if (!importedFile.hasOwnProperty("document") || !importedFile.hasOwnProperty("annotationSet")) {
+            throw new HTTPError(400);
+        }
+
+        // TODO: More validation for imported json?
+
+        const newSet = new models.AnnotationSet({
+            documentID: document._id,
+            userID: null,
+            locked: false,
+            name: importedFile.annotationSet.name
+        });
+
+        const savedSet = await newSet.save();
+
+        const newAnnotations = [];
+        for (let annotation of importedFile.annotationSet.annotations) {
+            const newAnnotation = new models.Annotation({
+                setID: savedSet._id,
+                pageNumber: annotation.pageNumber,
+                properties: JSON.stringify({
+                    type: annotation.type,
+                    data: annotation.data
+                }),
+            });
+
+            newAnnotations.push(newAnnotation.save());
+        }
+
+        Promise.all(newAnnotations).then(() => {
+            res.location(`/api/annotationsets/${savedSet._id}/`)
+            res.status(201).send();
+        });
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+});
+
 
 router.post("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
     if (!req.body.hasOwnProperty("pageNumber")) {

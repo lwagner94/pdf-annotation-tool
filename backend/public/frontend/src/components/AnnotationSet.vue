@@ -6,6 +6,13 @@
             </option>
         </select>
         <a :href="exportUrl" download="export.json"><button>Export</button></a>
+        <button @click="showImportDialog">Import</button>
+        <modal-dialog ref="modal">
+            <div>
+                <input ref="fileField" type="file" accept="application/json">
+                <button @click="importJson">Import</button>
+            </div>
+        </modal-dialog>
     </div>
 </template>
 
@@ -14,10 +21,11 @@
     import uuid from "uuid-random"
 
     import EventBus from "@/EventBus"
+    import ModalDialog from "./ModalDialog";
 
     export default {
         name: "AnnotationSet",
-
+        components: {ModalDialog},
         props: {
             documentID: String
         },
@@ -30,6 +38,39 @@
         },
 
         methods: {
+            showImportDialog() {
+                this.$refs.modal.setVisible(true);
+            },
+
+            importJson() {
+                const reader = new FileReader();
+
+                const self = this;
+                reader.onload = async () => {
+                    const text = reader.result;
+
+                    const requestBody = {
+                        documentID: self.documentID,
+                        importedFile: text
+                    };
+
+
+                    const response = await fetch("/api/annotationsets/import", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+
+                    this.$refs.modal.setVisible(false);
+
+                    this.fetchAnnotationSets();
+                };
+
+                reader.readAsText(this.$refs.fileField.files[0]);
+            },
+
             createAnnotationSet(name, callback) {
                 const self = this;
 
