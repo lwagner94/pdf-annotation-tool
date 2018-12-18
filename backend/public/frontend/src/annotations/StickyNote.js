@@ -5,7 +5,7 @@ const IMGSCALE = 1;
 
 
 export default class StickyNote extends Annotation {
-    constructor(context, x, y, width, height, scale, localID) {
+    constructor(context, x, y, width, height, scale, localID, documentWidth, documentHeight) {
         let placeholder = new fabric.Rect({
             width: 300,
             height: height,
@@ -18,7 +18,7 @@ export default class StickyNote extends Annotation {
         });
 
 
-        super(context, placeholder, x, y, width, height, scale, localID);
+        super(context, placeholder, x, y, width, height, scale, localID, documentWidth, documentHeight);
 
         this.expandedView = new fabric.Textbox("foo", {
             width: 300,
@@ -37,8 +37,8 @@ export default class StickyNote extends Annotation {
         new fabric.Image.fromURL("/sticky.png", function (img) {
             img.set("scaleX", self._scale);
             img.set("scaleY", self._scale);
-            img.set("left", self.x * self._scale / IMGSCALE);
-            img.set("top", self.y * self._scale / IMGSCALE);
+            img.set("left", self.xToLeft(self.x) / IMGSCALE);
+            img.set("top", self.yToTop(self.y) / IMGSCALE);
             // img.set("lockScalingX", true);
             // img.set("lockScalingY", true);
 
@@ -76,8 +76,8 @@ export default class StickyNote extends Annotation {
         setTimeout(() => {
             if (!self.expanded) {
                 console.log("Adding");
-                self.expandedView.set("left", self.x * self._scale);
-                self.expandedView.set("top", self.y * self._scale);
+                self.expandedView.set("left", self.xToLeft(self.x));
+                self.expandedView.set("top", self.yToTop(self.y));
 
                 self.context.add(self.expandedView);
                 self.context.setActiveObject(self.expandedView);
@@ -90,11 +90,18 @@ export default class StickyNote extends Annotation {
         }, 50);
     }
 
-    static fromJSON(context, properties, initialScale, localID) {
+    static fromJSON(context, properties, initialScale, localID, documentWidth, documentHeight) {
         const state = JSON.parse(properties);
 
-        const annotation = new StickyNote(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
+        const annotation = new StickyNote(context, 0, 0, state.data.width, state.data.height,
+            initialScale, localID, documentWidth, documentHeight);
         annotation.expandedView.text = state.data.text;
+
+        // Workaround. By setting the coordinates after constructing the instance, we can can use
+        // the coordinate transformation functionality in the setter
+        annotation.x = state.data.x;
+        annotation.y = state.data.y;
+
         return annotation;
     }
 
@@ -108,7 +115,7 @@ export default class StickyNote extends Annotation {
         this.object.set("scaleX", this._scale * IMGSCALE);
         this.object.set("scaleY", this._scale * IMGSCALE);
 
-        this.object.set("left", this._x * this._scale);
-        this.object.set("top", this._y * this._scale);
+        this.object.set("left", this.xToLeft(this.x));
+        this.object.set("top", this.yToTop(this.y));
     }
 }
