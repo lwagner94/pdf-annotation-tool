@@ -5,6 +5,7 @@
                 {{annotationSet.name}}
             </option>
         </select>
+        <a :href="exportUrl" download="export.json"><button>Export</button></a>
     </div>
 </template>
 
@@ -70,7 +71,7 @@
                             self.createAnnotationSet("<default>", self.fetchAnnotationSets)
                         }
                     });
-            }
+            },
         },
 
         mounted() {
@@ -161,7 +162,11 @@
         computed: {
             ...mapGetters([
                 "annotations"
-            ])
+            ]),
+
+            exportUrl() {
+                return `/api/annotationsets/${this.activeSetID}/export`;
+            }
         },
 
         watch: {

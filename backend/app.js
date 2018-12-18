@@ -34,6 +34,8 @@ app.use(history({
     ]
 }));
 
+app.set('json spaces', 4);
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

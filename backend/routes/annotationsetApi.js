@@ -141,6 +141,51 @@ router.get("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
     })
 });
 
+router.get("/:ObjectId_set/export", checkObjectIdParams, async (req, res) => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+        if (!set)
+            throw new HTTPError(404);
+
+        const document = await models.Document.findById(set.documentID);
+        if (!document) {
+            // We have a set that references a non existing document,
+            // this should not happen.
+            throw new HTTPError(500);
+        }
+        const annotations = await models.Annotation.find({setID: set.id});
+
+
+        const cleanedAnnotations = [];
+
+        for (let annotation of annotations) {
+            const parsedProperties = JSON.parse(annotation.properties);
+            cleanedAnnotations.push({
+                pageNumber: annotation.pageNumber,
+                type: parsedProperties.type,
+                data: parsedProperties.data
+            });
+        }
+
+        const result = {
+            document: {
+                name: document.name,
+                size: document.size
+            },
+            annotationSet: {
+                name: set.name,
+                annotations: cleanedAnnotations
+            }
+        };
+
+        res.json(result)
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+});
+
+
 router.post("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
     if (!req.body.hasOwnProperty("pageNumber")) {
         new HTTPError(400).send(res);
