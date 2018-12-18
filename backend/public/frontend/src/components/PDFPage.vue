@@ -174,7 +174,8 @@
 
                 this.destroyRenderTask();
 
-                this.annotations.dispose();
+                if (this.annotations)
+                    this.annotations.dispose();
                 delete this.annotations;
                 this.annotations = undefined;
             },
@@ -218,40 +219,6 @@
 
                 if (isElementVisible) {
                     this.$nextTick(() => {
-
-                        // const menu = document.querySelector(".menu");
-                        const menu = this.$refs.menu;
-                        // console.log(menu);
-                        // let menuVisible = false;
-                        //
-                        // const toggleMenu = command => {
-                        //     menu.style.display = command === "show" ? "block" : "none";
-                        //     menuVisible = !menuVisible;
-                        // };
-                        //
-                        // const setPosition = ({ top, left }) => {
-                        //     menu.style.left = `${left}px`;
-                        //     menu.style.top = `${top}px`;
-                        //     toggleMenu("show");
-                        // };
-                        //
-                        // window.addEventListener("click", e => {
-                        //     if(menuVisible)toggleMenu("hide");
-                        // });
-                        //
-                        // window.addEventListener("contextmenu", e => {
-                        //     e.preventDefault();
-                        //     const origin = {
-                        //         left: e.pageX,
-                        //         top: e.pageY
-                        //     };
-                        //     setPosition(origin);
-                        //     return false;
-                        // });
-
-
-
-
                         this.drawPage();
                         this.drawAnnotations();
                     });
@@ -272,6 +239,16 @@
 
         mounted() {
             log(`Page ${this.pageNumber} mounted`);
+
+            const self = this;
+            EventBus.$on("reload-annotations", () => {
+                if (self.annotations)
+                    self.annotations.dispose();
+                delete self.annotations;
+                self.annotations = undefined;
+
+                self.drawAnnotations();
+            });
 
         },
 

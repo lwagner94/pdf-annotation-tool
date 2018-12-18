@@ -37,6 +37,15 @@ class Annotations {
             self.drawMode = mode;
         });
 
+        // EventBus.$on("reload-annotations", () => {
+        //     for (let annotation of self._annotations) {
+        //         annotation.removeFromContext();
+        //     }
+        //
+        //     self._annotations = [];
+        //     // self.drawAnnotations();
+        // });
+
         this.context.on("mouse:down", opt => {
             let mouse;
 
@@ -214,7 +223,7 @@ class Annotations {
 
     dispose() {
         this.context.dispose();
-        delete this.context;
+        // delete this.context;
     }
 
     set width(w) {

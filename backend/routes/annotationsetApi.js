@@ -35,7 +35,8 @@ router.get("/", (req, res) => {
                 id: set._id,
                 documentID: set.documentID,
                 userID: set.userID,
-                locked: set.locked
+                locked: set.locked,
+                name: set.name
             });
         }
 
@@ -52,6 +53,12 @@ router.post("/", (req, res) => {
         return;
     }
 
+    if (!req.body.hasOwnProperty("name")) {
+        new HTTPError(400).send(res);
+        return;
+    }
+
+
     models.Document.findById(req.body.documentID).then(result => {
         if (!result) {
             throw new HTTPError(400);
@@ -61,6 +68,7 @@ router.post("/", (req, res) => {
             documentID: result._id,
             userID: null,
             locked: false,
+            name: req.body.name
         });
         return set.save();
     }).then(savedSet => {
@@ -82,7 +90,8 @@ router.get("/:ObjectId_set", checkObjectIdParams, (req, res) => {
             id: result._id,
             documentID: result.documentID,
             userID: result.userID,
-            locked: result.locked
+            locked: result.locked,
+            name: result.name
         });
 
     }).catch(err => {

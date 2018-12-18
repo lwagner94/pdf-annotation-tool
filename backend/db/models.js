@@ -10,7 +10,8 @@ const documentSchema = new mongoose.Schema({
 const annotationSetSchema = new mongoose.Schema({
     documentID: String,
     userID: mongoose.Schema.Types.ObjectId,
-    locked: Boolean
+    locked: Boolean,
+    name: String
 });
 
 const annotationSchema = new mongoose.Schema({
