@@ -1,5 +1,6 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'org.lukaswagner.autoannotator'
@@ -15,6 +16,10 @@ jar {
     manifest {
         attributes 'Main-Class': 'org.lukaswagner.autoannotator.Main'
     }
+}
+
+application {
+    mainClassName = "org.lukaswagner.autoannotator.Main"
 }
 
 dependencies {
