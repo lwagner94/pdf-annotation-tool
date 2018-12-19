@@ -3,7 +3,7 @@ import {fabric} from "fabric";
 
 
 export default class Rectangle extends Annotation {
-    constructor(context, x, y, width, height, scale, localID, documentWidth, documentHeight) {
+    constructor(context, x, y, width, height, scale, localID) {
         let object = new fabric.Rect({
             width: width,
             height: height,
@@ -15,7 +15,7 @@ export default class Rectangle extends Annotation {
             fireRightClick: true
         });
 
-        super(context, object, x, y, width, height, scale, localID, documentWidth, documentHeight);
+        super(context, object, x, y, width, height, scale, localID);
     }
 
     toJSON() {
@@ -32,17 +32,10 @@ export default class Rectangle extends Annotation {
         return JSON.stringify(state);
     }
 
-    static fromJSON(context, properties, initialScale, localID, documentWidth, documentHeight) {
+    static fromJSON(context, properties, initialScale, localID) {
         const state = JSON.parse(properties);
 
-        const annotation = new Rectangle(context, 0, 0, state.data.width,
-            state.data.height, initialScale, localID, documentWidth, documentHeight);
-
-
-        // Workaround. By setting the coordinates after constructing the instance, we can can use
-        // the coordinate transformation functionality in the setter
-        annotation.x = state.data.x;
-        annotation.y = state.data.y;
+        const annotation = new Rectangle(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
 
         return annotation;
     }

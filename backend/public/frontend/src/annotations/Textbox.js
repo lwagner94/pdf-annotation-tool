@@ -3,7 +3,7 @@ import {fabric} from "fabric";
 
 
 export default class Textbox extends Annotation {
-    constructor(context, x, y, width, height, scale, localID, documentWidth, documentHeight) {
+    constructor(context, x, y, width, height, scale, localID) {
         let object = new fabric.Textbox("foo", {
             width: width,
             height: height,
@@ -17,7 +17,7 @@ export default class Textbox extends Annotation {
             scaleY: scale
         });
 
-        super(context, object, x, y, width, height, scale, localID, documentWidth, documentHeight);
+        super(context, object, x, y, width, height, scale, localID);
         this.annotationType = "textbox";
     }
 
@@ -36,18 +36,12 @@ export default class Textbox extends Annotation {
         return JSON.stringify(state);
     }
 
-    static fromJSON(context, properties, initialScale, localID, documentWidth, documentHeight) {
+    static fromJSON(context, properties, initialScale, localID) {
         const state = JSON.parse(properties);
 
-        const annotation = new Textbox(context, 0, 0, state.data.width, state.data.height,
-            initialScale, localID, documentWidth, documentHeight);
+        const annotation = new Textbox(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
 
         annotation.object.text = state.data.text;
-
-        // Workaround. By setting the coordinates after constructing the instance, we can can use
-        // the coordinate transformation functionality in the setter
-        annotation.x = state.data.x;
-        annotation.y = state.data.y;
 
         return annotation;
     }

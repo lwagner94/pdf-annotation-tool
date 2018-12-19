@@ -25,15 +25,10 @@ class Annotations {
 
         this.context.setWidth(width);
         this.context.setHeight(height);
-
-        this.menu = menu;
-        this.menuVisible = false;
-
-        this.documentWidth = width / scale;
-        this.documentHeight = height / scale;
-
         this.registerCallbacks();
         this.drawAnnotations();
+        this.menu = menu;
+        this.menuVisible = false;
     }
 
     registerCallbacks() {
@@ -41,6 +36,15 @@ class Annotations {
         EventBus.$on("set-drawing", mode => {
             self.drawMode = mode;
         });
+
+        // EventBus.$on("reload-annotations", () => {
+        //     for (let annotation of self._annotations) {
+        //         annotation.removeFromContext();
+        //     }
+        //
+        //     self._annotations = [];
+        //     // self.drawAnnotations();
+        // });
 
         this.context.on("mouse:down", opt => {
             let mouse;
@@ -70,13 +74,13 @@ class Annotations {
 
             }
 
-            self.drawStartPos.x = mouse.x;
-            self.drawStartPos.y = mouse.y;
+            self.drawStartPos.x = this.normalizeCoordinate(mouse.x);
+            self.drawStartPos.y = this.normalizeCoordinate(mouse.y);
 
 
             const AnnotationClass = getAnnotationClass(self.drawMode);
             const annotation = new AnnotationClass(self.context, self.drawStartPos.x,
-                self.drawStartPos.y, 0, 0, this._scale, uuid(), self.documentWidth, self.documentHeight);
+                self.drawStartPos.y, 0, 0, this._scale, uuid());
             this._annotations.push(annotation);
 
             if (AnnotationClass.drawable()) {
@@ -102,8 +106,8 @@ class Annotations {
 
             const mouse = self.context.getPointer(opt.e);
 
-            const w = Math.abs(mouse.x - self.drawStartPos.x);
-            const h = Math.abs(mouse.y - self.drawStartPos.y);
+            const w = Math.abs(this.normalizeCoordinate(mouse.x) - self.drawStartPos.x);
+            const h = Math.abs(this.normalizeCoordinate(mouse.y) - self.drawStartPos.y);
 
             if (!w || !h) {
                 return false;
@@ -153,8 +157,7 @@ class Annotations {
 
         for (let annotation of annotations) {
             const AnnotationType = getAnnotationClassFromJSON(annotation.properties);
-            const newAnnotation = AnnotationType.fromJSON(this.context, annotation.properties, this._scale,
-                annotation.localID, this.documentWidth, this.documentHeight);
+            const newAnnotation = AnnotationType.fromJSON(this.context, annotation.properties, this._scale, annotation.localID);
             newAnnotation.addToContext();
             this._annotations.push(newAnnotation);
         }
