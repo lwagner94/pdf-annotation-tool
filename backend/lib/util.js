@@ -20,6 +20,7 @@ function handleError(res, err) {
         res.status(err.code).send(err.name);
     }
     else {
+        console.log(err);
         res.status(500).send("Internal server error")
     }
 }

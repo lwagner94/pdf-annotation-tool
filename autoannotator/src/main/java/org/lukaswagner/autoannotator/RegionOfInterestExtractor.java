@@ -21,7 +21,7 @@ public class RegionOfInterestExtractor {
         var stripper = new PDFTextStripper() {
             private boolean active = false;
             public List<List<Point>> currentROIPoints = new ArrayList<>();
-            private int currentPage;
+            private double lastY;
 
             @Override
             protected void writeString(String text, List<TextPosition> textPositions) throws IOException
@@ -42,17 +42,21 @@ public class RegionOfInterestExtractor {
                         active = true;
                     } else if (fontMatch && active) {
                         // Read next character of current ROI
-                        this.currentROIPoints.get(this.currentROIPoints.size() - 1).add(new Point(this.getCurrentPageNo(), currX, currY));
+                        if (Double.compare(lastY, currY) != 0) {
+                            this.currentROIPoints.add(new ArrayList<>());
+                        }
 
+                        this.currentROIPoints.get(this.currentROIPoints.size() - 1).add(new Point(this.getCurrentPageNo(), currX, currY));
                     }
                     else if (!fontMatch && active) {
                         // Leaving ROI
                         active = false;
-
                     }
                     else {
                         // Outside ROI
                     }
+
+                    lastY = currY;
 
                 }
             }
@@ -77,7 +81,8 @@ public class RegionOfInterestExtractor {
                 yMax = Math.max(point.getY(), yMax);
             }
 
-            rois.add(new RegionOfInterest(pageNo, xMin, yMin, xMax - xMin, yMax - yMin));
+            rois.add(new RegionOfInterest(pageNo, xMin, yMin - this.fontStyle.getFontSize(), xMax - xMin + this.fontStyle.getFontSize(),
+                    Math.max(this.fontStyle.getFontSize(), yMax - yMin)));
         }
 
         return rois;

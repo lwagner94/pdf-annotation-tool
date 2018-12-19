@@ -62,6 +62,13 @@ class Annotations {
                         action: () => {
                             self.removeAnnotation(opt.target.annotationInstance);
                         }
+                    },
+                    {
+                        identifier: "byfontstyle",
+                        text: "Repeat annotation based on font style",
+                        action: () => {
+                            self.repeatByFontStyle(opt.target.annotationInstance);
+                        }
                     }
                 ]);
             }
@@ -185,6 +192,10 @@ class Annotations {
         if (index > -1) {
             this._annotations.splice(index, 1);
         }
+    }
+
+    repeatByFontStyle(annotation) {
+        EventBus.$emit("repeat-by-fontstyle", annotation.localID);
     }
 
     storeAnnotation(annotation) {

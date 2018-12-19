@@ -113,6 +113,31 @@
                         }
                     });
             },
+
+            fetchAnnotations() {
+                fetch(`/api/annotationsets/${this.activeSetID}/annotations`)
+                    .then(result => result.json())
+                    .then(result => {
+                        this.$store.commit("setAnnotations", []);
+                        let annotations = [];
+
+                        for (let annotation of result) {
+                            annotations.push({
+                                id: annotation.id,
+                                setID: annotation.setID,
+                                pageNumber: annotation.pageNumber,
+                                properties: annotation.properties,
+                                localID: uuid(),
+                                dirty: false,
+                                created: false,
+                                deleted: false
+                            });
+                        }
+
+                        this.$store.commit("setAnnotations", annotations);
+                        EventBus.$emit("reload-annotations");
+                    })
+            }
         },
 
         mounted() {
@@ -194,6 +219,14 @@
                 }
             });
 
+            EventBus.$on("repeat-by-fontstyle", async (localID) => {
+                const annotation = this.annotations.find(annotation => annotation.localID === localID);
+                const response = await fetch(`/api/annotationsets/${this.activeSetID}/annotations/${annotation.id}/byfontstyle`);
+
+                this.fetchAnnotations();
+
+            });
+
         },
 
         beforeDestroy() {
@@ -212,28 +245,7 @@
 
         watch: {
             activeSetID(id) {
-                fetch(`/api/annotationsets/${id}/annotations`)
-                    .then(result => result.json())
-                    .then(result => {
-                        this.$store.commit("setAnnotations", []);
-                        let annotations = [];
-
-                        for (let annotation of result) {
-                            annotations.push({
-                                id: annotation.id,
-                                setID: annotation.setID,
-                                pageNumber: annotation.pageNumber,
-                                properties: annotation.properties,
-                                localID: uuid(),
-                                dirty: false,
-                                created: false,
-                                deleted: false
-                            });
-                        }
-
-                        this.$store.commit("setAnnotations", annotations);
-                        EventBus.$emit("reload-annotations");
-                    })
+                this.fetchAnnotations();
             },
 
         }

@@ -2,6 +2,7 @@ const bodyParser = require("body-parser");
 
 const mongoose = require("mongoose");
 const express = require("express");
+const fetch = require("node-fetch");
 const models = require("../db/models");
 const HTTPError = require("../lib/util").HTTPError;
 const handleError = require("../lib/util").handleError;
@@ -10,6 +11,8 @@ const handleError = require("../lib/util").handleError;
 const router = express.Router();
 
 router.use(bodyParser.json());
+
+const AUTOANNOTATOR_URL = "http://localhost:4567";
 
 
 function checkObjectIdParams(req, res, next) {
@@ -353,6 +356,94 @@ router.delete("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdPa
     }).catch(err => {
         handleError(res, err);
     });
+});
+
+router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkObjectIdParams, async (req, res) => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+        if (!set) {
+            throw new HTTPError(404);
+        }
+
+        const annotation = await models.Annotation.findById(req.params.ObjectId_annotation);
+
+        if (!annotation) {
+            throw new HTTPError(404);
+        }
+
+        const parsedAnnotationProperties = JSON.parse(annotation.properties);
+
+        if (parsedAnnotationProperties.type !== "rectangle") {
+            throw new HTTPError(400);
+        }
+
+
+        const requestBody = {
+            documentID: set.documentID,
+            regionOfInterest: {
+                pageNumber: annotation.pageNumber,
+                x: parsedAnnotationProperties.data.x,
+                y: parsedAnnotationProperties.data.y,
+                width: parsedAnnotationProperties.data.width,
+                height: parsedAnnotationProperties.data.height
+            }
+        };
+
+
+
+        const response = await fetch(AUTOANNOTATOR_URL + "/api/byfontstyle", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const result = await response.json();
+
+        const newAnnotations = [];
+        for (let newAnnotation of result) {
+            newAnnotations.push(new models.Annotation({
+                setID: set._id,
+                pageNumber: newAnnotation.pageNumber,
+                properties: JSON.stringify({
+                    type: "rectangle",
+                    data: {
+                        x: newAnnotation.x,
+                        y: newAnnotation.y,
+                        width: newAnnotation.width,
+                        height: newAnnotation.height
+                    }
+                })
+            }).save());
+        }
+
+        await Promise.all(newAnnotations);
+        res.status(200).send("ok");
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+
+
+    // models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
+    //     if (!set) {
+    //         throw new HTTPError(404);
+    //     }
+    //
+    //     return models.Annotation.findById(req.params.ObjectId_annotation)
+    // }).then(annotation => {
+    //     if (!annotation) {
+    //         res.status(404).send("Not found");
+    //         return;
+    //     }
+    //     return annotation.remove()
+    // }).then(() => {
+    //     res.status(200).send();
+    //
+    // }).catch(err => {
+    //     handleError(res, err);
+    // });
 });
 
 
