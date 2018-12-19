@@ -10,21 +10,16 @@ import java.util.List;
 import java.util.Set;
 
 public class FontStyleExtractor {
-    public FontStyleExtractor(PDDocument document, int pageNumber, double x, double y, double width, double height) {
+    public FontStyleExtractor(PDDocument document, RegionOfInterest regionOfInterest) {
         this.document = document;
-        this.pageNumber = pageNumber;
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+        this.regionOfInterest = regionOfInterest;
+
     }
 
     private PDDocument document;
-    private int pageNumber;
-    private double x;
-    private double y;
-    private double width;
-    private double height;
+    private RegionOfInterest regionOfInterest;
+
+
 
 
     public Set<FontStyle> getFontStyles() throws IOException {
@@ -41,9 +36,9 @@ public class FontStyleExtractor {
                     var currX = position.getX();
                     var currY = position.getY();
 
-                    if (this.getCurrentPageNo() == pageNumber &&
-                            currX > x && currX < x + width &&
-                            currY > y && currY < y + height) {
+                    if (this.getCurrentPageNo() == regionOfInterest.getPageNumber() &&
+                            currX > regionOfInterest.getX() && currX < regionOfInterest.getX() + regionOfInterest.getWidth() &&
+                            currY > regionOfInterest.getY() && currY < regionOfInterest.getY() + regionOfInterest.getHeight()) {
 
                         String font = position.getFont().getName();
                         float size = position.getFontSize();

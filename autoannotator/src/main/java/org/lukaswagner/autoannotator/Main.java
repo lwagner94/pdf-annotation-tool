@@ -13,7 +13,6 @@ public class Main {
         File file = new File("main.pdf");
 
         var x = 61.78;
-//        var y = 589.75;
         var y = 253.4;
 
         var width = 143.97;
@@ -29,12 +28,24 @@ public class Main {
             System.out.println(page.getMediaBox().getHeight() / 1);
 
 
-            var stripper = new FontStyleExtractor(document, pageNumber, x, y, width, height);
-            System.out.println(stripper.getFontStyles());
+            var stripper = new FontStyleExtractor(document, new RegionOfInterest(pageNumber, x, y, width, height));
+            var styles = stripper.getFontStyles();
+
+            var style = ((FontStyle) styles.toArray()[0]);
+
+            var roiExtractor = new RegionOfInterestExtractor(document, style);
+
+            var rois = roiExtractor.getRegionsOfInterest();
+
+            for (var roi : rois) {
+                System.out.println(roi);
+            }
+
+            System.out.println(style.getFontSize());
 
         }
         catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }
