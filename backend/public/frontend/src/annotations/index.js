@@ -233,6 +233,7 @@ class Annotations {
     }
 
     dispose() {
+        this.menu = null;
         this.context.dispose();
         // delete this.context;
     }
