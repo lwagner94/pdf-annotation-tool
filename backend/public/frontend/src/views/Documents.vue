@@ -1,33 +1,49 @@
 <template>
     <div>
-        <div>
-            <ul>
-                <li v-for="document in documents" :key="document.id">
-                    <div>
-                        <img :src="'/api/documents/' + document.id + '/thumb'">
-                        <router-link :to="{ name: 'viewer', query: { document: document.id }}">{{document.name}}</router-link>
-                        <button @click="showDeletionDialog(document)">Delete document</button>
-                    </div>
+        <!--<div>-->
+            <!--<ul>-->
+                <!--<li v-for="document in documents" :key="document.id">-->
+                    <!--<div>-->
+                        <!--<img :src="'/api/documents/' + document.id + '/thumb'">-->
+                        <!--<router-link :to="{ name: 'viewer', query: { document: document.id }}">{{document.name}}</router-link>-->
+                        <!--<button @click="showDeletionDialog(document)">Delete document</button>-->
+                    <!--</div>-->
 
-                </li>
-            </ul>
-        </div>
+                <!--</li>-->
+            <!--</ul>-->
+        <!--</div>-->
+
+        <b-list-group>
+            <b-list-group-item v-for="document in documents" :key="document.id">
+                <div>
+                    <b-img thumbnail :src="'/api/documents/' + document.id + '/thumb'">
+                    </b-img>
+                    <h1>
+                        {{document.name}}
+                    </h1>
+
+                    <b-button :to="{ name: 'viewer', query: { document: document.id }}">Open</b-button>
+
+                    <b-button @click="showDeletionDialog(document)">Delete document</b-button>
+                </div>
+            </b-list-group-item>
+
+        </b-list-group>
+
 
         <button @click="showUploadDialog()">Upload</button>
 
-        <modal-dialog ref="modal">
+
+        <b-modal ref="deletionModal" @ok="deleteDocument">
             <div>
-                <div v-show="uploadVisible">
-                    <input ref="fileField" type="file" accept="application/pdf">
-                    <button @click="uploadDocument">Upload</button>
-                </div>
-                <div v-show="deleteVisible">
-                    <span>Are you sure?</span>
-                    <button @click="deleteDocument()">Yes</button>
-                    <button @click="setVisible(false)">No</button>
-                </div>
+                <span>Are you sure?</span>
             </div>
-        </modal-dialog>
+        </b-modal>
+
+        <b-modal ref="uploadModal" @ok="uploadDocument">
+                <input ref="fileField" type="file" accept="application/pdf">
+        </b-modal>
+
     </div>
 </template>
 
@@ -67,7 +83,6 @@
 
                     setTimeout(() => {
                         this.getDocuments();
-                        this.setVisible(false);
                     }, 100);
 
                 })
@@ -83,26 +98,17 @@
                     method: "POST",
                     body: formData
                 }).then(response => {
-                    this.setVisible(false);
                     this.getDocuments();
                 })
             },
 
-            setVisible(visible) {
-                this.$refs.modal.setVisible(visible);
-            },
-
             showDeletionDialog(document) {
                 this.document = document;
-                this.deleteVisible = true;
-                this.uploadVisible = false;
-                this.setVisible(true);
+                this.$refs.deletionModal.show();
             },
 
             showUploadDialog() {
-                this.uploadVisible = true;
-                this.deleteVisible = false;
-                this.setVisible(true);
+                this.$refs.uploadModal.show();
             }
         }
     }

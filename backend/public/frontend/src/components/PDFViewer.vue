@@ -1,10 +1,13 @@
 <template>
     <div class="pdf-viewer">
-        <header class="pdf-viewer__header box-shadow">
+        <b-navbar
+                variant="dark"
+                class="pdf-viewer__header box-shadow">
+            <b-button :to="{ name: 'documents'}">Back</b-button>
             <div class="pdf-preview-toggle">
-                <a @click.prevent.stop="togglePreview" class="icon">
-                    <PreviewIcon/>
-                </a>
+                <b-button @click.prevent.stop="togglePreview" class="icon">
+                    Preview
+                </b-button>
             </div>
 
             <PDFZoom
@@ -27,7 +30,7 @@
             <DrawModeSelector>
 
             </DrawModeSelector>
-        </header>
+        </b-navbar>
 
         <PDFData
                 class="pdf-viewer__main"

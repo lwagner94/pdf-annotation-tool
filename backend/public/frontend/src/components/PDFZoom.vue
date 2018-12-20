@@ -1,17 +1,20 @@
 <template>
     <div class="pdf-zoom">
-        <a @click.prevent.stop="zoomIn" class="icon" :disabled="isDisabled">
-            <ZoomInIcon/>
-        </a>
-        <a @click.prevent.stop="zoomOut" class="icon" :disabled="isDisabled">
-            <ZoomOutIcon/>
-        </a>
-        <a @click.prevent.stop="fitWidth" class="icon" :disabled="isDisabled">
-            <ExpandIcon/>
-        </a>
-        <a @click.prevent.stop="fitAuto" class="icon" :disabled="isDisabled">
-            <ShrinkIcon/>
-        </a>
+        <b-button-group>
+            <b-button @click.prevent.stop="zoomIn" :disabled="isDisabled">
+                <ZoomInIcon class="zoom-icon"/>
+            </b-button>
+            <b-button @click.prevent.stop="zoomOut" :disabled="isDisabled">
+                <ZoomOutIcon class="zoom-icon"/>
+            </b-button>
+            <b-button @click.prevent.stop="fitWidth" :disabled="isDisabled">
+                <ExpandIcon class="zoom-icon"/>
+            </b-button>
+            <b-button @click.prevent.stop="fitAuto" :disabled="isDisabled">
+                <ShrinkIcon class="zoom-icon"/>
+            </b-button>
+        </b-button-group>
+
     </div>
 </template>
 
@@ -85,5 +88,9 @@
         width: 1em;
         height: 1em;
         font-size: 1em;
+    }
+
+    .zoom-icon {
+        width: 30px;
     }
 </style>

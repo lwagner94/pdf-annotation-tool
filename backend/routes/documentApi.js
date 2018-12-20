@@ -118,7 +118,7 @@ router.delete("/:id", async (req, res) => {
         }
 
         res.status(200).send();
-        
+
         const path = getFilePath() + document._id;
         fs.unlink(path, (err) => {
             if (err)

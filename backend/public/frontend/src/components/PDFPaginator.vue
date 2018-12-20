@@ -1,15 +1,22 @@
 <template>
     <div class="pdf-paginator">
         <template v-if="pageCount">
-            <input
-                    :value="value"
-                    @input="input"
-                    min="1"
-                    :max="pageCount"
-                    type="number"
-            /> / <span>{{ pageCount }}</span>
+            <div class="input-group">
+                <input
+                        class="form-control"
+                        :value="value"
+                        @input="input"
+                        min="1"
+                        :max="pageCount"
+                        type="number"
+                />
+                <div class="input-group-append">
+                    <span class="input-group-text">of {{ pageCount }}</span>
+                </div>
+            </div>
+
         </template>
-        <input v-else type="number"/>
+        <!--<b-form-input v-else type="number"></b-form-input>-->
     </div>
 </template>
 
@@ -36,14 +43,18 @@
     }
 </script>
 
-<style>
-    .pdf-paginator {
-        color: white;
-        font-weight: bold;
-    }
+<style scoped>
+    /*.pdf-paginator {*/
+        /*color: white;*/
+        /*font-weight: bold;*/
+    /*}*/
 
-    .pdf-paginator input {
-        width: 2em;
-        padding: 0.3em;
+    /*.pdf-paginator input {*/
+        /*width: 2em;*/
+        /*padding: 0.3em;*/
+    /*}*/
+
+    .nobreak {
+        white-space: nowrap;
     }
 </style>

@@ -15,7 +15,7 @@ const router = new Router({
             component: Viewer
         },
         {
-            path: "/documents",
+            path: "/",
             name: "documents",
             component: Documents
         }
