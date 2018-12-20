@@ -234,7 +234,9 @@ class Annotations {
 
     dispose() {
         this.menu = null;
+        this.context.clear();
         this.context.dispose();
+        this._annotations = null;
         // delete this.context;
     }
 

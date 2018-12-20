@@ -424,26 +424,6 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkO
     catch (e) {
         handleError(res, e);
     }
-
-
-    // models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
-    //     if (!set) {
-    //         throw new HTTPError(404);
-    //     }
-    //
-    //     return models.Annotation.findById(req.params.ObjectId_annotation)
-    // }).then(annotation => {
-    //     if (!annotation) {
-    //         res.status(404).send("Not found");
-    //         return;
-    //     }
-    //     return annotation.remove()
-    // }).then(() => {
-    //     res.status(200).send();
-    //
-    // }).catch(err => {
-    //     handleError(res, err);
-    // });
 });
 
 
