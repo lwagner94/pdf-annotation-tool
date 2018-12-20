@@ -6,11 +6,19 @@
             </option>
         </select>
         <a :href="exportUrl" download="export.json"><button>Export</button></a>
-        <button @click="showImportDialog">Import</button>
+        <button @click="showImport">Import</button>
+        <button @click="deleteAnnotationSet">Delete set</button>
+        <button @click="showCreateAnnotationSet">Create set</button>
         <modal-dialog ref="modal">
             <div>
-                <input ref="fileField" type="file" accept="application/json">
-                <button @click="importJson">Import</button>
+                <div v-show="importVisible">
+                    <input ref="fileField" type="file" accept="application/json">
+                    <button @click="importJson">Import</button>
+                </div>
+                <div v-show="createSetVisible">
+                    <input v-model="dialogSetName">
+                    <button @click="createAnnotationSetFromDialog"></button>
+                </div>
             </div>
         </modal-dialog>
     </div>
@@ -34,11 +42,16 @@
             return {
                 annotationSets: [],
                 activeSetID: undefined,
+                importVisible: false,
+                createSetVisible: false,
+                dialogSetName: "New annotation set"
             }
         },
 
         methods: {
-            showImportDialog() {
+            showImport() {
+                this.importVisible = true;
+                this.createSetVisible = false;
                 this.$refs.modal.setVisible(true);
             },
 
@@ -71,6 +84,11 @@
                 reader.readAsText(this.$refs.fileField.files[0]);
             },
 
+            createAnnotationSetFromDialog() {
+                this.createAnnotationSet(this.dialogSetName);
+                this.$refs.modal.setVisible(false);
+            },
+
             createAnnotationSet(name, callback) {
                 const self = this;
 
@@ -88,10 +106,24 @@
                 })
                     .then(response => {
                         // TODO: Error handling
-                        if (callback) {
-                            callback();
-                        }
+                        self.fetchAnnotationSets();
                     })
+            },
+
+            deleteAnnotationSet() {
+                const self = this;
+
+                fetch("/api/annotationsets/" + this.activeSetID, {
+                    method: "DELETE"
+                }).then(response => {
+                    self.fetchAnnotationSets();
+                });
+            },
+
+            showCreateAnnotationSet() {
+                this.importVisible = false;
+                this.createSetVisible = true;
+                this.$refs.modal.setVisible(true);
             },
 
             fetchAnnotationSets() {
@@ -109,7 +141,7 @@
                         }
 
                         if (!self.annotationSets.length) {
-                            self.createAnnotationSet("<default>", self.fetchAnnotationSets)
+                            self.createAnnotationSet("<default>")
                         }
                     });
             },
