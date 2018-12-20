@@ -97,24 +97,41 @@ router.get("/:id/thumb", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
-    models.Document.findById(req.params.id).then(result => {
-        if (!result) {
+router.delete("/:id", async (req, res) => {
+    try {
+        const document = await models.Document.findById(req.params.id);
+
+        if (!document) {
             throw new HTTPError(404);
         }
 
-        const path = getFilePath() + result._id;
+        const sets = await models.AnnotationSet.find({documentID: document._id});
+
+        for (let set of sets) {
+            const annotations = await models.Annotation.find({setID: set._id});
+
+            for (let annotation of annotations) {
+                annotation.remove();
+            }
+
+            set.remove();
+        }
+
+        res.status(200).send();
+        
+        const path = getFilePath() + document._id;
         fs.unlink(path, (err) => {
             if (err)
                 throw err;
             else
-                result.remove();
+                document.remove();
         });
 
         res.status(200).send();
-    }).catch(err => {
-        handleError(res, err);
-    });
+    }
+    catch (e) {
+        handleError(res, e);
+    }
 });
 
 module.exports = router;

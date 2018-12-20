@@ -103,18 +103,24 @@ router.get("/:ObjectId_set", checkObjectIdParams, (req, res) => {
 });
 
 
-router.delete("/:ObjectId_set", checkObjectIdParams, (req, res) => {
-    // TODO: Remove all annotations which reference this annotation set
-    models.AnnotationSet.findById(req.params.ObjectId_set).then(result => {
-        if (!result) {
+router.delete("/:ObjectId_set", checkObjectIdParams, async (req, res) => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+        if (!set) {
             throw new HTTPError(404);
         }
-        result.remove();
-        res.status(200).send();
 
-    }).catch(err => {
-        handleError(res, err);
-    })
+        const annotations = await models.Annotation.find({setID: set._id});
+
+        for (let annotation of annotations) {
+            annotation.remove();
+        }
+        set.remove();
+        res.status(200).send();
+    }
+    catch (e) {
+        handleError(res, e);
+    }
 });
 
 
