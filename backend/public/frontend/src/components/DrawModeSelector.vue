@@ -1,9 +1,14 @@
 <template>
     <div>
-        <button @click="toggleDrawing('textbox')">Textbox</button>
-        <button @click="toggleDrawing('rectangle')">Rectangle</button>
-        <button @click="toggleDrawing('stickynote')">Sticky Note</button>
-        {{buttonText}}
+        <b-input-group size="sm">
+            <b-form-select v-model="selected" :options="options">
+
+            </b-form-select>
+            <b-button slot="append" @click="toggleDrawing" :pressed="drawing">
+                Draw
+            </b-button>
+
+        </b-input-group>
     </div>
 </template>
 
@@ -14,31 +19,41 @@
 
         data() {
             return {
-                drawMode: null
+                drawing: false,
+                drawMode: null,
+                selected: undefined,
+                options: [
+                    {value: "rectangle", text: "Rectangle"},
+                    {value: "textbox", text: "Text Box"},
+                    {value: "stickynote", text: "Sticky Note"},
+                ]
             }
         },
 
         methods: {
-            toggleDrawing(mode) {
-                EventBus.$emit("set-drawing", mode);
+            toggleDrawing() {
+                if (!this.drawing) {
+                    this.drawing = true;
+                    console.log(this.selected);
+                    EventBus.$emit("set-drawing", this.selected);
+                }
+                else {
+                    this.drawing = false;
+                    console.log(this.selected);
+                    EventBus.$emit("set-drawing", null);
+                }
+
             }
         },
 
         mounted() {
+            this.selected = this.options[0].value;
             EventBus.$on("set-drawing", drawing => {
-                this.drawMode = drawing;
+                if (!drawing) {
+                    this.drawing = false;
+                }
             });
         },
-
-        computed: {
-            buttonText() {
-                if (this.drawMode) {
-                    return "Drawing " + this.drawMode;
-                }
-
-                return "Drawing disabled";
-            }
-        }
     }
 </script>
 

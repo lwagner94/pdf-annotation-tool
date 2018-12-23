@@ -34,6 +34,7 @@ class Annotations {
     registerCallbacks() {
         const self = this;
         EventBus.$on("set-drawing", mode => {
+            console.log(mode);
             self.drawMode = mode;
         });
 

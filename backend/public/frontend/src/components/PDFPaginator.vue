@@ -1,7 +1,7 @@
 <template>
     <div class="pdf-paginator">
         <template v-if="pageCount">
-            <div class="input-group">
+            <div class="input-group input-group-sm">
                 <input
                         class="form-control"
                         :value="value"

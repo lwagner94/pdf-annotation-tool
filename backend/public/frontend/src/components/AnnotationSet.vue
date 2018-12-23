@@ -1,26 +1,28 @@
 <template>
     <div>
-        <select v-model="activeSetID">
-            <option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">
-                {{annotationSet.name}}
-            </option>
-        </select>
-        <a :href="exportUrl" download="export.json"><button>Export</button></a>
-        <button @click="showImport">Import</button>
-        <button @click="deleteAnnotationSet">Delete set</button>
-        <button @click="showCreateAnnotationSet">Create set</button>
-        <modal-dialog ref="modal">
-            <div>
-                <div v-show="importVisible">
-                    <input ref="fileField" type="file" accept="application/json">
-                    <button @click="importJson">Import</button>
-                </div>
-                <div v-show="createSetVisible">
-                    <input v-model="dialogSetName">
-                    <button @click="createAnnotationSetFromDialog"></button>
-                </div>
-            </div>
-        </modal-dialog>
+        <b-input-group>
+            <b-form-select v-model="activeSetID" size="sm">
+                <option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">
+                    {{annotationSet.name}}
+                </option>
+            </b-form-select>
+
+            <b-dropdown size="sm" text="Annotation sets..." slot="append">
+                <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
+                <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
+                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-item @click="showCreateAnnotationSet"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Set</span></b-dropdown-item>
+                <b-dropdown-item @click="deleteAnnotationSet"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
+            </b-dropdown>
+        </b-input-group>
+
+        <b-modal ref="importModal" @ok="importJson">
+            <input ref="fileField" type="file" accept="application/json">
+        </b-modal>
+
+        <b-modal ref="createSetModal" @ok="createAnnotationSetFromDialog">
+            <input v-model="dialogSetName">
+        </b-modal>
     </div>
 </template>
 
@@ -29,11 +31,10 @@
     import uuid from "uuid-random"
 
     import EventBus from "@/EventBus"
-    import ModalDialog from "./ModalDialog";
 
     export default {
         name: "AnnotationSet",
-        components: {ModalDialog},
+        components: {},
         props: {
             documentID: String
         },
@@ -42,17 +43,13 @@
             return {
                 annotationSets: [],
                 activeSetID: undefined,
-                importVisible: false,
-                createSetVisible: false,
-                dialogSetName: "New annotation set"
+                dialogSetName: "New annotation set",
             }
         },
 
         methods: {
             showImport() {
-                this.importVisible = true;
-                this.createSetVisible = false;
-                this.$refs.modal.setVisible(true);
+                this.$refs.importModal.show();
             },
 
             importJson() {
@@ -76,7 +73,6 @@
                         body: JSON.stringify(requestBody)
                     });
 
-                    this.$refs.modal.setVisible(false);
 
                     this.fetchAnnotationSets();
                 };
@@ -86,7 +82,6 @@
 
             createAnnotationSetFromDialog() {
                 this.createAnnotationSet(this.dialogSetName);
-                this.$refs.modal.setVisible(false);
             },
 
             createAnnotationSet(name, callback) {
@@ -121,9 +116,7 @@
             },
 
             showCreateAnnotationSet() {
-                this.importVisible = false;
-                this.createSetVisible = true;
-                this.$refs.modal.setVisible(true);
+                this.$refs.createSetModal.show();
             },
 
             fetchAnnotationSets() {
@@ -285,6 +278,8 @@
     }
 </script>
 
-<style scoped>
-
+<style scoped lang="less">
+    select {
+        width: 10em;
+    }
 </style>

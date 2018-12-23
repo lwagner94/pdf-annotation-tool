@@ -3,10 +3,10 @@
         <b-navbar
                 variant="dark"
                 class="pdf-viewer__header box-shadow">
-            <b-button :to="{ name: 'documents'}">Back</b-button>
+            <b-button :to="{ name: 'documents'}" size="sm"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button>
             <div class="pdf-preview-toggle">
-                <b-button @click.prevent.stop="togglePreview" class="icon">
-                    Preview
+                <b-button @click.prevent.stop="togglePreview" size="sm">
+                    <font-awesome-icon icon="eye" /><span class="icon-clearance">Preview</span>
                 </b-button>
             </div>
 
@@ -151,25 +151,18 @@
     };
 </script>
 
-<style scoped>
-    header {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        padding: 0.5em;
-        position: relative;
-        z-index: 99;
-        /*height: 3em;*/
+<style lang="less">
+    nav {
+        height: 3em;
     }
 
     .header-item {
-        margin: 0 2.5em;
+        /*margin: 0 2.5em;*/
     }
 
     .pdf-viewer .pdf-viewer__document,
     .pdf-viewer .pdf-viewer__preview {
-        top: 6em;
+        top: 3em;
     }
 
     .pdf-viewer__preview {
@@ -193,5 +186,9 @@
         header {
             display: none;
         }
+    }
+
+    .icon-clearance {
+        margin-left: 0.5em;
     }
 </style>
