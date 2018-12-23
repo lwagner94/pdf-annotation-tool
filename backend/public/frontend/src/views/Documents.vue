@@ -1,40 +1,45 @@
 <template>
     <div>
-        <b-navbar variant="dark">
+        <b-navbar variant="my">
             <b-navbar-nav>
-                <h2>PDF Annotation Tool</h2>
+                <h3>PDF Annotation Tool</h3>
             </b-navbar-nav>
 
             <b-navbar-nav class="ml-auto">
-                <b-button size="sm" @click="showUploadDialog()">Upload</b-button>
+                <b-button size="sm" @click="showUploadDialog()" variant="my-primary">Upload</b-button>
             </b-navbar-nav>
 
         </b-navbar>
 
         <div id="content">
-            <b-list-group>
-                <b-list-group-item v-for="document in documents" :key="document.id">
-                    <b-container>
-                        <b-row>
-                            <b-col>
-                                <b-img thumbnail :src="'/api/documents/' + document.id + '/thumb'">
-                                </b-img>
-                            </b-col>
-                            <b-col>
-                                <h3>
-                                    {{document.name}}
-                                </h3>
+            <div class="flex-container">
+                <div class="flex-item" v-for="document in documents" :key="document.id">
 
-                                <b-button :to="{ name: 'viewer', query: { document: document.id }}">Open</b-button>
+                    <div class="thumb-container">
+                        <router-link :to="{ name: 'viewer', query: { document: document.id }}">
+                            <b-img thumbnail :src="'/api/documents/' + document.id + '/thumb'">
+                            </b-img>
+                        </router-link>
+                    </div>
+                    <div class="description">
+                        <div class="button-container">
+                            <a href="#" @click="showDeletionDialog(document)"><font-awesome-icon icon="trash-alt" /></a>
+                            <!--<b-button size="sm" @click="showDeletionDialog(document)">Delete document</b-button>-->
+                        </div>
+                        <div class="document-title">
+                            <strong>
+                                {{document.name}}
+                            </strong>
+                        </div>
 
-                                <b-button @click="showDeletionDialog(document)">Delete document</b-button>
-                            </b-col>
-                        </b-row>
+                    </div>
 
-                    </b-container>
-                </b-list-group-item>
 
-            </b-list-group>
+
+
+                </div>
+
+            </div>
 
             <b-modal ref="deletionModal" @ok="deleteDocument">
                 <div>
@@ -117,20 +122,49 @@
 </script>
 
 <style scoped lang="less">
+    @import "../style.less";
+
+
     img {
-        height: 200px;
+        height: 100%;
+        display: block;
     }
 
-    h2 {
-        color: grey;
+    .thumb-container {
+        height: 100%;
+        float: left;
+        padding: 0.2em;
+    }
+
+    h3 {
+        color: @mainTextColor;
     }
 
     #content {
         top: 3em;
     }
 
-    nav {
-        height: 3em;
+
+    .flex-container {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 2em;
+    }
+
+    .flex-item {
+        width: 24em;
+        height: 15em;
+        border: 1px solid lightgrey;
+        border-radius: 0.3em;
+        margin: 0.5em;
+        padding: 0.5em;
+    }
+
+    .description {
+    }
+
+    .button-container {
+        text-align: left;
     }
 
 </style>

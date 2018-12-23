@@ -7,7 +7,7 @@
                 </option>
             </b-form-select>
 
-            <b-dropdown size="sm" text="Annotation sets..." slot="append">
+            <b-dropdown size="sm" text="Annotation sets..." slot="append" variant="my-primary">
                 <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
                 <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>

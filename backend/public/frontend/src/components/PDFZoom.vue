@@ -1,16 +1,16 @@
 <template>
     <div class="pdf-zoom">
-        <b-button-group size="sm">
-            <b-button  @click.prevent.stop="zoomIn" :disabled="isDisabled" >
+        <b-button-group size="sm" variant="my">
+            <b-button  @click.prevent.stop="zoomIn" :disabled="isDisabled" variant="my-primary" >
                 <font-awesome-icon icon="search-plus" />
             </b-button>
-            <b-button @click.prevent.stop="zoomOut" :disabled="isDisabled" >
+            <b-button @click.prevent.stop="zoomOut" :disabled="isDisabled" variant="my-primary">
                 <font-awesome-icon icon="search-minus" />
             </b-button>
-            <b-button @click.prevent.stop="fitWidth" :disabled="isDisabled" >
+            <b-button @click.prevent.stop="fitWidth" :disabled="isDisabled" variant="my-primary">
                 <font-awesome-icon icon="expand" />
             </b-button>
-            <b-button @click.prevent.stop="fitAuto" :disabled="isDisabled" >
+            <b-button @click.prevent.stop="fitAuto" :disabled="isDisabled" variant="my-primary">
                 <font-awesome-icon icon="compress" />
 
             </b-button>

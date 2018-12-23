@@ -4,7 +4,7 @@
             <b-form-select v-model="selected" :options="options">
 
             </b-form-select>
-            <b-button slot="append" @click="toggleDrawing" :pressed="drawing">
+            <b-button slot="append" @click="toggleDrawing" :pressed="drawing" variant="my-primary">
                 Draw
             </b-button>
 

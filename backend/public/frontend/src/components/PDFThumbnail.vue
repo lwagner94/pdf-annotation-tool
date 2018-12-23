@@ -146,7 +146,9 @@
     }
 </script>
 
-<style scoped>
+<style scoped lang="less">
+    @import "../style.less";
+
     .pdf-thumbnail {
         cursor: pointer;
         margin: 0 auto;
@@ -166,7 +168,7 @@
     }
 
     .pdf-thumbnail.focused img {
-        border-color: rgba(68, 204, 139, 0.65);
+        border-color: @focusPage;
     }
 
     .placeholder {
