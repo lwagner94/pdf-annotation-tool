@@ -2,11 +2,6 @@
     <div>
         <div class="float-left">
             <b-input-group>
-                <!--<b-form-select v-model="activeLabelID" size="sm" class="mode-select">-->
-                    <!--<option v-for="label in labels" :value="label.id" :key="label.id" style="color: #00B7FF !important;">-->
-                        <!--{{label.name}}-->
-                    <!--</option>-->
-                <!--</b-form-select>-->
                 <b-dropdown size="sm" variant="my-primary">
                     <template slot="button-content">
                         <span :style="'color: ' + activeLabel.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{activeLabel.name}}</span>
@@ -14,7 +9,7 @@
 
                     <b-dropdown-item v-for="label in labels"
                                      :key="label.id"
-                                     @click="setActiveLabel(label.id)">
+                                     @click="setActiveLabel(label)">
                         <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
                     </b-dropdown-item>
                 </b-dropdown>
@@ -81,13 +76,14 @@
                 activeSetID: undefined,
                 dialogSetName: "New annotation set",
                 labelName: "New Label",
-                labelColor: "white"
+                labelColor: "green"
             }
         },
 
         methods: {
-            setActiveLabel(id) {
-                this.activeLabel = this.labels.find(label => label.id === id);
+            setActiveLabel(label) {
+                this.activeLabel = label;
+                this.$store.commit("setActiveLabel", this.activeLabel);
             },
 
 
@@ -251,7 +247,6 @@
                 fetch(`/api/annotationsets/${this.activeSetID}/labels`)
                     .then(result => result.json())
                     .then(result => {
-                        this.$store.commit("setLabels", []);
                         let labels = [];
 
                         for (let label of result) {
@@ -261,12 +256,16 @@
                                 name: label.name,
                                 color: label.color
                             });
-                            this.activeLabel = label;
                         }
 
-                        this.labels = labels;
-                        this.$store.commit("setLabels", labels);
-                        EventBus.$emit("reload-labels");
+                        if (!labels.length) {
+                            this.createLabel("<default>", "yellow");
+                        }
+                        else {
+                            this.labels = labels;
+                            this.setActiveLabel(labels[0]);
+                            this.$store.commit("setLabels", labels);
+                        }
                     })
             }
         },

@@ -8,6 +8,8 @@ const debug = process.env.NODE_ENV !== 'production'
 export default new Vuex.Store({
     state: {
         annotations: [],
+        labels: [],
+        activeLabel: undefined,
     },
 
     mutations: {
@@ -49,6 +51,10 @@ export default new Vuex.Store({
 
         setLabels: (state, labels) => {
             state.labels = labels;
+        },
+
+        setActiveLabel: (state, label) => {
+            state.activeLabel = label;
         }
     },
 
@@ -61,6 +67,12 @@ export default new Vuex.Store({
         },
         labels: state => {
             return state.labels
+        },
+        activeLabel: state => {
+            return state.activeLabel;
+        },
+        labelByID: state => id => {
+            return state.labels.find(label => label.id === id);
         }
     },
 

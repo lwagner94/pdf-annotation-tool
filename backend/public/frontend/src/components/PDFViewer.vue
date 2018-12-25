@@ -3,7 +3,8 @@
         <b-navbar
                 variant="my"
                 class="box-shadow">
-            <b-button :to="{ name: 'documents'}" size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button>
+            <!--<b-button :to="{ name: 'documents'}" size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button>-->
+            <a href="/"><b-button size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button></a>
             <div class="pdf-preview-toggle">
                 <b-button @click.prevent.stop="togglePreview" size="sm" variant="my-primary">
                     <font-awesome-icon icon="eye" /><span class="icon-clearance">Preview</span>

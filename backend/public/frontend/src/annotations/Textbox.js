@@ -3,13 +3,13 @@ import {fabric} from "fabric";
 
 
 export default class Textbox extends Annotation {
-    constructor(context, x, y, width, height, scale, localID) {
-        let object = new fabric.Textbox("foo", {
+    constructor(context, x, y, width, height, scale, localID, label) {
+        let object = new fabric.Textbox("Text", {
             width: width,
             height: height,
             left: x * scale,
             top: y * scale,
-            backgroundColor: "rgba(255, 255, 200, 1)",
+            backgroundColor: label.color,
             fill: "black",
             lockScalingY: true,
             fontSize: 20,
@@ -17,8 +17,7 @@ export default class Textbox extends Annotation {
             scaleY: scale
         });
 
-        super(context, object, x, y, width, height, scale, localID);
-        this.annotationType = "textbox";
+        super(context, object, x, y, width, height, scale, localID, label);
     }
 
     toJSON() {
@@ -36,10 +35,10 @@ export default class Textbox extends Annotation {
         return JSON.stringify(state);
     }
 
-    static fromJSON(context, properties, initialScale, localID) {
+    static fromJSON(context, properties, initialScale, localID, label) {
         const state = JSON.parse(properties);
 
-        const annotation = new Textbox(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
+        const annotation = new Textbox(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID, label);
 
         annotation.object.text = state.data.text;
 

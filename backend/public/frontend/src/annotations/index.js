@@ -33,10 +33,12 @@ class Annotations {
 
     registerCallbacks() {
         const self = this;
-        EventBus.$on("set-drawing", mode => {
+        this.setDrawingCallback = mode => {
             console.log(mode);
             self.drawMode = mode;
-        });
+        };
+
+        EventBus.$on("set-drawing", this.setDrawingCallback);
 
         // EventBus.$on("reload-annotations", () => {
         //     for (let annotation of self._annotations) {
@@ -88,7 +90,7 @@ class Annotations {
 
             const AnnotationClass = getAnnotationClass(self.drawMode);
             const annotation = new AnnotationClass(self.context, self.drawStartPos.x,
-                self.drawStartPos.y, 0, 0, this._scale, uuid());
+                self.drawStartPos.y, 0, 0, this._scale, uuid(), store.getters.activeLabel);
             this._annotations.push(annotation);
 
             if (AnnotationClass.drawable()) {
@@ -165,7 +167,10 @@ class Annotations {
 
         for (let annotation of annotations) {
             const AnnotationType = getAnnotationClassFromJSON(annotation.properties);
-            const newAnnotation = AnnotationType.fromJSON(this.context, annotation.properties, this._scale, annotation.localID);
+
+            const newAnnotation = AnnotationType.fromJSON(this.context, annotation.properties, this._scale, annotation.localID,
+                store.getters.labelByID(annotation.labelID));
+
             newAnnotation.addToContext();
             this._annotations.push(newAnnotation);
         }
@@ -201,7 +206,7 @@ class Annotations {
 
     storeAnnotation(annotation) {
         store.commit("storeAnnotation", {
-            labelID: null,
+            labelID: annotation.label.id,
             localID: annotation.localID,
             pageNumber: this._pageNumber,
             properties: annotation.toJSON(),
@@ -215,7 +220,7 @@ class Annotations {
 
     updateAnnotation(annotation) {
         store.commit("storeAnnotation", {
-            labelID: null,
+            labelID: annotation.label.id,
             localID: annotation.localID,
             pageNumber: this._pageNumber,
             properties: annotation.toJSON(),
@@ -236,6 +241,7 @@ class Annotations {
     }
 
     dispose() {
+        EventBus.$off("set-drawing", this.setDrawingCallback);
         this.menu = null;
         this.context.clear();
         this.context.dispose();

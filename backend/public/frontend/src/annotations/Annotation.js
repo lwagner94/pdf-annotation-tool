@@ -1,8 +1,9 @@
 
 export default class Annotation {
-    constructor(context, object, x, y, width, height, scale, localID) {
+    constructor(context, object, x, y, width, height, scale, localID, label) {
         this.context = context;
         this.localID = localID;
+        this._label = label;
 
         this.object = object;
         this._x = x;
@@ -47,7 +48,7 @@ export default class Annotation {
         throw new Error("Invalid use of abstract class");
     }
 
-    static fromJSON(properties, localID) {
+    static fromJSON(properties, localID, label) {
         throw new Error("Invalid use of abstract class");
     }
 
@@ -98,6 +99,10 @@ export default class Annotation {
 
         this.object.set("left", this._x * this._scale);
         this.object.set("top", this._y * this._scale);
+    }
+
+    get label() {
+        return this._label;
     }
 }
 

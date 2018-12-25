@@ -34,7 +34,6 @@
             toggleDrawing() {
                 if (!this.drawing) {
                     this.drawing = true;
-                    console.log(this.selected);
                     EventBus.$emit("set-drawing", this.selected);
                 }
                 else {

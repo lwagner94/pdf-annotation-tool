@@ -5,7 +5,7 @@ const IMGSCALE = 1;
 
 
 export default class StickyNote extends Annotation {
-    constructor(context, x, y, width, height, scale, localID) {
+    constructor(context, x, y, width, height, scale, localID, label) {
         let placeholder = new fabric.Rect({
             width: 300,
             height: height,
@@ -18,9 +18,9 @@ export default class StickyNote extends Annotation {
         });
 
 
-        super(context, placeholder, x, y, width, height, scale, localID);
+        super(context, placeholder, x, y, width, height, scale, localID, label);
 
-        this.expandedView = new fabric.Textbox("foo", {
+        this.expandedView = new fabric.Textbox("Text", {
             width: 300,
             height: 300,
             backgroundColor: "rgba(255, 255, 200, 1)",
@@ -90,10 +90,10 @@ export default class StickyNote extends Annotation {
         }, 50);
     }
 
-    static fromJSON(context, properties, initialScale, localID) {
+    static fromJSON(context, properties, initialScale, localID, label) {
         const state = JSON.parse(properties);
 
-        const annotation = new StickyNote(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID);
+        const annotation = new StickyNote(context, state.data.x, state.data.y, state.data.width, state.data.height, initialScale, localID, label);
         annotation.expandedView.text = state.data.text;
         return annotation;
     }
