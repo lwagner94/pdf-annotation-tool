@@ -2,7 +2,7 @@
     <div class="pdf-viewer">
         <b-navbar
                 variant="my"
-                class="pdf-viewer__header box-shadow">
+                class="box-shadow">
             <b-button :to="{ name: 'documents'}" size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button>
             <div class="pdf-preview-toggle">
                 <b-button @click.prevent.stop="togglePreview" size="sm" variant="my-primary">

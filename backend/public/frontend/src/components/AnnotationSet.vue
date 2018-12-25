@@ -1,28 +1,50 @@
 <template>
     <div>
-        <b-input-group>
-            <b-form-select v-model="activeSetID" size="sm" class="mode-select">
-                <option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">
-                    {{annotationSet.name}}
-                </option>
-            </b-form-select>
+        <div class="float-left">
+            <b-input-group>
+                <b-form-select v-model="activeLabelID" size="sm" class="mode-select">
+                    <option v-for="label in labels" :value="label.id" :key="label.id">
+                        {{label.name}}
+                    </option>
+                </b-form-select>
 
-            <b-dropdown size="sm" text="Manage sets" slot="append" variant="my-primary">
-                <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
-                <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
-                <b-dropdown-divider></b-dropdown-divider>
-                <b-dropdown-item @click="showCreateAnnotationSet"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Set</span></b-dropdown-item>
-                <b-dropdown-item @click="deleteAnnotationSet"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
-            </b-dropdown>
-        </b-input-group>
+                <b-dropdown size="sm" text="Manage labels" slot="append" variant="my-primary">
+                    <b-dropdown-item @click="showCreateLabel"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Label</span></b-dropdown-item>
+                    <b-dropdown-item @click="deleteLabel"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Label</span></b-dropdown-item>
+                </b-dropdown>
+            </b-input-group>
 
-        <b-modal ref="importModal" @ok="importJson">
-            <input ref="fileField" type="file" accept="application/json">
-        </b-modal>
+        </div>
+        <div class="float-left">
+            <b-input-group>
+                <b-form-select v-model="activeSetID" size="sm" class="mode-select">
+                    <option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">
+                        {{annotationSet.name}}
+                    </option>
+                </b-form-select>
 
-        <b-modal ref="createSetModal" @ok="createAnnotationSetFromDialog">
-            <input v-model="dialogSetName">
-        </b-modal>
+                <b-dropdown size="sm" text="Manage sets" slot="append" variant="my-primary">
+                    <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
+                    <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
+                    <b-dropdown-divider></b-dropdown-divider>
+                    <b-dropdown-item @click="showCreateAnnotationSet"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Set</span></b-dropdown-item>
+                    <b-dropdown-item @click="deleteAnnotationSet"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
+                </b-dropdown>
+            </b-input-group>
+
+            <b-modal ref="importModal" @ok="importJson">
+                <input ref="fileField" type="file" accept="application/json">
+            </b-modal>
+
+            <b-modal ref="createSetModal" @ok="createAnnotationSetFromDialog">
+                <input v-model="dialogSetName">
+            </b-modal>
+
+            <b-modal ref="createLabelModal" @ok="createLabelFromDialog">
+                <input v-model="labelName">
+                <input v-model="labelColor">
+            </b-modal>
+        </div>
     </div>
 </template>
 
@@ -42,8 +64,12 @@
         data() {
             return {
                 annotationSets: [],
+                labels: [],
                 activeSetID: undefined,
+                activeLabelID: undefined,
                 dialogSetName: "New annotation set",
+                labelName: "New Label",
+                labelColor: "white"
             }
         },
 
@@ -119,6 +145,10 @@
                 this.$refs.createSetModal.show();
             },
 
+            showCreateLabel() {
+                this.$refs.createLabelModal.show();
+            },
+
             fetchAnnotationSets() {
                 const self = this;
 
@@ -150,6 +180,7 @@
                             annotations.push({
                                 id: annotation.id,
                                 setID: annotation.setID,
+                                labelID: annotation.labelID,
                                 pageNumber: annotation.pageNumber,
                                 properties: annotation.properties,
                                 localID: uuid(),
@@ -175,6 +206,7 @@
 
                         let annotationToPost = {
                             setID: self.activeSetID,
+                            labelID: annotation.labelID,
                             pageNumber: annotation.pageNumber,
                             properties: annotation.properties
                         };
@@ -193,6 +225,7 @@
                                 self.$store.commit("storeAnnotation", {
                                     id: id,
                                     setID: self.activeSetID,
+                                    labelID: annotation.labelID,
                                     pageNumber: annotation.pageNumber,
                                     properties: annotation.properties,
                                     localID: annotation.localID,
@@ -203,6 +236,7 @@
                             });
                     } else if (annotation.dirty) {
                         let annotationToPost = {
+                            labelID: annotation.labelID,
                             pageNumber: annotation.pageNumber,
                             properties: annotation.properties
                         };
@@ -221,6 +255,7 @@
                                 self.$store.commit("storeAnnotation", {
                                     id: id,
                                     setID: self.activeSetID,
+                                    labelID: annotation.labelID,
                                     pageNumber: annotation.pageNumber,
                                     properties: annotation.properties,
                                     localID: annotation.localID,
@@ -282,5 +317,10 @@
     .mode-select {
         width: 8em !important;
         font-size: 10pt !important;
+    }
+
+    .float-left {
+        float: left;
+        padding-left: 0.5em;
     }
 </style>

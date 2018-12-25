@@ -93,7 +93,8 @@ describe("AnnotationSet API", function () {
             .post(`/api/annotationsets/aaaaaaaaaaaaaaaaaaaaaaaa/annotations/`)
             .send({
                 pageNumber: 1,
-                properties: "test"
+                properties: "test",
+                labelID: "aaaaaaaaaaaaaaaaaaaaaaaa"
             })
             .expect(404, done)
     });
@@ -161,7 +162,8 @@ describe("AnnotationSet API", function () {
                     .put(path + annotationID)
                     .send({
                         pageNumber: 10,
-                        properties: "modified"
+                        properties: "modified",
+                        labelID: "aaaaaaaaaaaaaaaaaaaaaaaa"
                     })
                     .expect(200)
                     .then(response => {
@@ -213,7 +215,8 @@ describe("AnnotationSet API", function () {
                     .put(path + value)
                     .send({
                         pageNumber: 10,
-                        properties: "modified"
+                        properties: "modified",
+                        labelID: "aaaaaaaaaaaaaaaaaaaaaaaa"
                     })
                     .expect(404)
                     .then(() => {
@@ -229,7 +232,8 @@ describe("AnnotationSet API", function () {
                     .put(`/api/annotationsets/${value}/annotations/aaaaaaaaaaaaaaaaaaaaaaaa`)
                     .send({
                         pageNumber: 10,
-                        properties: "modified"
+                        properties: "modified",
+                        labelID: "aaaaaaaaaaaaaaaaaaaaaaaa"
                     })
                     .expect(404)
                     .then(() => {

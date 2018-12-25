@@ -34,7 +34,8 @@ module.exports.addAnnotationSet = function (server, documentID) {
     return request(server)
         .post("/api/annotationsets")
         .send({
-            documentID: documentID
+            documentID: documentID,
+            name: "test"
         })
         .expect(201)
 };
@@ -43,8 +44,19 @@ module.exports.addAnnotation = function (server, annotationSetID) {
     return request(server)
         .post(`/api/annotationsets/${annotationSetID}/annotations/`)
         .send({
+            labelID: "aaaaaaaaaaaaaaaaaaaaaaaa",
             pageNumber: 1,
             properties: "test"
+        })
+        .expect(201)
+};
+
+module.exports.addLabel = function (server, annotationSetID) {
+    return request(server)
+        .post(`/api/annotationsets/${annotationSetID}/labels/`)
+        .send({
+            name: "testlabel",
+            color: "testcolor"
         })
         .expect(201)
 };

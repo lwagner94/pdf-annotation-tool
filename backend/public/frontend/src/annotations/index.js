@@ -201,6 +201,7 @@ class Annotations {
 
     storeAnnotation(annotation) {
         store.commit("storeAnnotation", {
+            labelID: null,
             localID: annotation.localID,
             pageNumber: this._pageNumber,
             properties: annotation.toJSON(),
@@ -214,6 +215,7 @@ class Annotations {
 
     updateAnnotation(annotation) {
         store.commit("storeAnnotation", {
+            labelID: null,
             localID: annotation.localID,
             pageNumber: this._pageNumber,
             properties: annotation.toJSON(),

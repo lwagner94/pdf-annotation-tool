@@ -115,6 +115,12 @@ router.delete("/:ObjectId_set", checkObjectIdParams, async (req, res) => {
         for (let annotation of annotations) {
             annotation.remove();
         }
+
+        const labels = await models.Label.find({setID: set._id});
+
+        for (let label of labels) {
+            label.remove();
+        }
         set.remove();
         res.status(200).send();
     }
@@ -138,6 +144,7 @@ router.get("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
             result.push({
                 id: annotation._id,
                 setID: annotation.setID,
+                labelID: annotation.labelID,
                 pageNumber: annotation.pageNumber,
                 properties: annotation.properties
             });
@@ -252,7 +259,7 @@ router.post("/import", checkObjectIdParams, async (req, res) => {
 });
 
 
-router.post("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
+router.post("/:ObjectId_set/annotations", checkObjectIdParams, async (req, res) => {
     if (!req.body.hasOwnProperty("pageNumber")) {
         new HTTPError(400).send(res);
         return;
@@ -263,25 +270,31 @@ router.post("/:ObjectId_set/annotations", checkObjectIdParams, (req, res) => {
         return;
     }
 
+    if (!req.body.hasOwnProperty("labelID")) {
+        new HTTPError(400).send(res);
+        return;
+    }
 
-    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set)
         if (!set) {
             throw new HTTPError(404);
         }
 
         const annotation = new models.Annotation({
             setID: set._id,
+            labelID: req.body.labelID,
             pageNumber: req.body.pageNumber,
             properties: req.body.properties,
         });
 
-        return annotation.save();
-    }).then(savedAnnotation => {
+        const savedAnnotation = await annotation.save();
+
         res.location(`/api/annotationsets/${savedAnnotation.setID}/annotations/${savedAnnotation._id}`);
         res.status(201).send();
-    }).catch(err => {
-        handleError(res, err);
-    })
+    } catch (e) {
+        handleError(res, e);
+    }
 });
 
 router.get("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
@@ -299,6 +312,7 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParam
         res.json({
             id: annotation._id,
             setID: annotation.setID,
+            labelID: annotation.labelID,
             pageNumber: annotation.pageNumber,
             properties: annotation.properties
         });
@@ -308,7 +322,7 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParam
 });
 
 
-router.put("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
+router.put("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, async (req, res) => {
     if (!req.body.hasOwnProperty("pageNumber")) {
         new HTTPError(400).send(res);
         return;
@@ -319,28 +333,37 @@ router.put("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParam
         return;
     }
 
+    if (!req.body.hasOwnProperty("labelID")) {
+        new HTTPError(400).send(res);
+        return;
+    }
 
-    models.AnnotationSet.findById(req.params.ObjectId_set).then(set => {
+
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+
         if (!set) {
             throw new HTTPError(404);
         }
 
-        return models.Annotation.findById(req.params.ObjectId_annotation)
-    }).then(annotation => {
+        const annotation = await models.Annotation.findById(req.params.ObjectId_annotation)
+
         if (!annotation) {
             throw new HTTPError(404);
         }
 
+        annotation.labelID = req.body.labelID;
         annotation.pageNumber = req.body.pageNumber;
         annotation.properties = req.body.properties;
 
-        return annotation.save();
-    }).then(result => {
+        const result = await annotation.save();
+
         res.location(`/api/annotationsets/${result.setID}/annotations/${result._id}`);
         res.status(200).send();
-    }).catch(err => {
-        handleError(res, err);
-    });
+    }
+    catch (e) {
+        handleError(res, e);
+    }
 });
 
 router.delete("/:ObjectId_set/annotations/:ObjectId_annotation", checkObjectIdParams, (req, res) => {
@@ -426,6 +449,89 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkO
 
         await Promise.all(newAnnotations);
         res.status(200).send("ok");
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+});
+
+
+router.get("/:ObjectId_set/labels", checkObjectIdParams, async (req, res) => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+
+        if (!set) {
+            throw new HTTPError(404);
+        }
+
+        const labels = await models.Label.find({setID: set._id});
+
+        const result = [];
+
+        for (let label of labels) {
+            result.push({
+                id: label._id,
+                setID: label.setID,
+                name: label.name,
+                color: label.color
+            });
+        }
+
+        res.json(result);
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+});
+
+router.post("/:ObjectId_set/labels", checkObjectIdParams, async (req, res) => {
+    if (!req.body.hasOwnProperty("name")) {
+        new HTTPError(400).send(res);
+        return;
+    }
+
+    if (!req.body.hasOwnProperty("color")) {
+        new HTTPError(400).send(res);
+        return;
+    }
+
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set)
+        if (!set) {
+            throw new HTTPError(404);
+        }
+
+        const label = new models.Label({
+            setID: set._id,
+            name: req.body.name,
+            color: req.body.color,
+        });
+
+        const savedLabel = await label.save();
+        const location = `/api/annotationsets/${savedLabel.setID}/labels/${savedLabel._id}`;
+        res.location(location);
+        res.status(201).send();
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+});
+
+router.delete("/:ObjectId_set/labels/:ObjectId_label", checkObjectIdParams, async (req, res) => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+            if (!set) {
+                throw new HTTPError(404);
+            }
+
+            const label = await models.Label.findById(req.params.ObjectId_label)
+            if (!label) {
+                res.status(404).send("Not found");
+                return;
+            }
+            await label.remove();
+            res.status(200).send();
+
     }
     catch (e) {
         handleError(res, e);
