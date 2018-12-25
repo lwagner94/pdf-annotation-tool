@@ -2,11 +2,23 @@
     <div>
         <div class="float-left">
             <b-input-group>
-                <b-form-select v-model="activeLabelID" size="sm" class="mode-select">
-                    <option v-for="label in labels" :value="label.id" :key="label.id">
-                        {{label.name}}
-                    </option>
-                </b-form-select>
+                <!--<b-form-select v-model="activeLabelID" size="sm" class="mode-select">-->
+                    <!--<option v-for="label in labels" :value="label.id" :key="label.id" style="color: #00B7FF !important;">-->
+                        <!--{{label.name}}-->
+                    <!--</option>-->
+                <!--</b-form-select>-->
+                <b-dropdown size="sm" variant="my-primary">
+                    <template slot="button-content">
+                        <span :style="'color: ' + activeLabel.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{activeLabel.name}}</span>
+                    </template>
+
+                    <b-dropdown-item v-for="label in labels"
+                                     :key="label.id"
+                                     @click="setActiveLabel(label.id)">
+                        <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
+                    </b-dropdown-item>
+                </b-dropdown>
+
 
                 <b-dropdown size="sm" text="Manage labels" slot="append" variant="my-primary">
                     <b-dropdown-item @click="showCreateLabel"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Label</span></b-dropdown-item>
@@ -65,8 +77,8 @@
             return {
                 annotationSets: [],
                 labels: [],
+                activeLabel: {},
                 activeSetID: undefined,
-                activeLabelID: undefined,
                 dialogSetName: "New annotation set",
                 labelName: "New Label",
                 labelColor: "white"
@@ -74,6 +86,11 @@
         },
 
         methods: {
+            setActiveLabel(id) {
+                this.activeLabel = this.labels.find(label => label.id === id);
+            },
+
+
             showImport() {
                 this.$refs.importModal.show();
             },
@@ -159,7 +176,7 @@
             deleteLabel() {
                 const self = this;
 
-                fetch(`/api/annotationsets/${this.activeSetID}/labels/` + this.activeLabelID, {
+                fetch(`/api/annotationsets/${this.activeSetID}/labels/` + this.activeLabel.id, {
                     method: "DELETE"
                 }).then(response => {
                     self.fetchLabels();
@@ -244,7 +261,7 @@
                                 name: label.name,
                                 color: label.color
                             });
-                            this.activeLabelID = label.id;
+                            this.activeLabel = label;
                         }
 
                         this.labels = labels;
@@ -357,7 +374,8 @@
 
             exportUrl() {
                 return `/api/annotationsets/${this.activeSetID}/export`;
-            }
+            },
+
         },
 
         watch: {
