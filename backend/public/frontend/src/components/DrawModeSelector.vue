@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-input-group size="sm">
-            <b-form-select v-model="selected" :options="options">
+            <b-form-select v-model="selected" :options="options" class="mode-select">
 
             </b-form-select>
             <b-button slot="append" @click="toggleDrawing" :pressed="drawing" variant="my-primary">
@@ -58,5 +58,8 @@
 </script>
 
 <style scoped>
-
+    .mode-select {
+        width: 8em !important;
+        font-size: 10pt !important;
+    }
 </style>

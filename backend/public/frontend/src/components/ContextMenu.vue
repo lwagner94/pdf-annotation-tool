@@ -64,13 +64,14 @@
     @import "../style.less";
 
     .context-menu {
-        width: 10em;
-        box-shadow: 0.1em 0.1em 0.1em 0.1em rgba(0, 0, 0, 0.2);
+        width: 16em;
+        border: 1px solid lightgrey;
+        border-radius: 0.4em;
         position: absolute;
         z-index: 10;
         user-select: none;
-        background: @contextMenu;
-        color: @mainTextColor;
+        background: white;
+        color: black;
 
         .context-menu-options {
             list-style: none;
@@ -78,13 +79,13 @@
 
             .context-menu-option {
                 font-weight: 500;
-                font-size: 10pt;
-                /*padding: 10px 40px 10px 20px;*/
+                font-size: 12pt;
+                padding: 0.5em 0.5em 0.5em 0.5em;
                 cursor: pointer;
                 text-align: left;
 
                 &:hover {
-                    background-color: @buttonHover;
+                    background-color: rgba(0, 0, 0, 0.03);
                 }
             }
         }

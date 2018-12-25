@@ -1,13 +1,13 @@
 <template>
     <div>
         <b-input-group>
-            <b-form-select v-model="activeSetID" size="sm">
+            <b-form-select v-model="activeSetID" size="sm" class="mode-select">
                 <option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">
                     {{annotationSet.name}}
                 </option>
             </b-form-select>
 
-            <b-dropdown size="sm" text="Annotation sets..." slot="append" variant="my-primary">
+            <b-dropdown size="sm" text="Manage sets" slot="append" variant="my-primary">
                 <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
                 <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
                 <b-dropdown-divider></b-dropdown-divider>
@@ -279,7 +279,8 @@
 </script>
 
 <style scoped lang="less">
-    select {
-        width: 10em;
+    .mode-select {
+        width: 8em !important;
+        font-size: 10pt !important;
     }
 </style>

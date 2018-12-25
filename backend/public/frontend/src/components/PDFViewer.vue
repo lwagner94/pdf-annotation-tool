@@ -23,13 +23,11 @@
                     class="header-item"
             />
 
-            <AnnotationSet :documentID="documentID">
-
-            </AnnotationSet>
-
             <DrawModeSelector>
-
             </DrawModeSelector>
+
+            <AnnotationSet :documentID="documentID">
+            </AnnotationSet>
         </b-navbar>
 
         <PDFData
