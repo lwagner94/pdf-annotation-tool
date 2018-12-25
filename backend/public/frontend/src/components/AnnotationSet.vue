@@ -110,7 +110,11 @@
                 this.createAnnotationSet(this.dialogSetName);
             },
 
-            createAnnotationSet(name, callback) {
+            createLabelFromDialog() {
+                this.createLabel(this.labelName, this.labelColor);
+            },
+
+            createAnnotationSet(name) {
                 const self = this;
 
                 const set = {
@@ -129,6 +133,37 @@
                         // TODO: Error handling
                         self.fetchAnnotationSets();
                     })
+            },
+
+            createLabel(name, color) {
+                const self = this;
+
+                const label = {
+                    name: name,
+                    color: color
+                };
+
+                fetch(`/api/annotationsets/${this.activeSetID}/labels`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(label)
+                })
+                    .then(response => {
+                        // TODO: Error handling
+                        self.fetchLabels();
+                    })
+            },
+
+            deleteLabel() {
+                const self = this;
+
+                fetch(`/api/annotationsets/${this.activeSetID}/labels/` + this.activeLabelID, {
+                    method: "DELETE"
+                }).then(response => {
+                    self.fetchLabels();
+                });
             },
 
             deleteAnnotationSet() {
@@ -193,13 +228,35 @@
                         this.$store.commit("setAnnotations", annotations);
                         EventBus.$emit("reload-annotations");
                     })
+            },
+
+            fetchLabels() {
+                fetch(`/api/annotationsets/${this.activeSetID}/labels`)
+                    .then(result => result.json())
+                    .then(result => {
+                        this.$store.commit("setLabels", []);
+                        let labels = [];
+
+                        for (let label of result) {
+                            labels.push({
+                                id: label.id,
+                                setID: label.setID,
+                                name: label.name,
+                                color: label.color
+                            });
+                            this.activeLabelID = label.id;
+                        }
+
+                        this.labels = labels;
+                        this.$store.commit("setLabels", labels);
+                        EventBus.$emit("reload-labels");
+                    })
             }
         },
 
         mounted() {
             const self = this;
             self.fetchAnnotationSets();
-
             EventBus.$on("annotations-modified", () => {
                 for (let annotation of self.annotations) {
                     if (annotation.created) {
@@ -295,7 +352,7 @@
 
         computed: {
             ...mapGetters([
-                "annotations"
+                "annotations",
             ]),
 
             exportUrl() {
@@ -305,6 +362,7 @@
 
         watch: {
             activeSetID(id) {
+                this.fetchLabels();
                 this.fetchAnnotations();
             },
 

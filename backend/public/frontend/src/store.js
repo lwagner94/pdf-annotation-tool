@@ -30,6 +30,7 @@ export default new Vuex.Store({
                 state.annotations[index].dirty = annotation.dirty;
                 state.annotations[index].deleted = annotation.deleted;
                 state.annotations[index].localID = annotation.localID;
+                state.annotations[index].labelID = annotation.labelID;
                 state.annotations[index].properties = annotation.properties;
                 state.annotations[index].pageNumber = annotation.pageNumber;
             }
@@ -44,6 +45,10 @@ export default new Vuex.Store({
             if (index > -1) {
                 state.annotations.splice(index, 1);
             }
+        },
+
+        setLabels: (state, labels) => {
+            state.labels = labels;
         }
     },
 
@@ -53,6 +58,9 @@ export default new Vuex.Store({
         },
         annotations: state => {
             return state.annotations;
+        },
+        labels: state => {
+            return state.labels
         }
     },
 
