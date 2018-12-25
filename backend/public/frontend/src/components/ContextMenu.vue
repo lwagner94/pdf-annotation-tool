@@ -1,10 +1,10 @@
 <template>
-    <div class="menu" ref="menu" :style="style">
-        <ul class="menu-options">
+    <div class="context-menu" ref="menu" :style="style">
+        <ul class="context-menu-options">
             <li v-for="entry in menuEntries"
                 :key="entry.identifier"
                 @click="dispatch(entry)"
-                class="menu-option">{{entry.text}}</li>
+                class="context-menu-option">{{entry.text}}</li>
         </ul>
     </div>
 </template>
@@ -61,27 +61,30 @@
 </script>
 
 <style scoped lang="less">
-    .menu {
-        width: 120px;
-        box-shadow: 0 4px 5px 3px rgba(0, 0, 0, 0.2);
+    @import "../style.less";
+
+    .context-menu {
+        width: 10em;
+        box-shadow: 0.1em 0.1em 0.1em 0.1em rgba(0, 0, 0, 0.2);
         position: absolute;
-        display: none;
         z-index: 10;
         user-select: none;
-        background: darkgrey;
+        background: @contextMenu;
+        color: @mainTextColor;
 
-        .menu-options {
+        .context-menu-options {
             list-style: none;
-            padding: 10px 0;
+            padding: 0.5em 0.2em;
 
-            .menu-option {
+            .context-menu-option {
                 font-weight: 500;
-                font-size: 14px;
-                padding: 10px 40px 10px 20px;
+                font-size: 10pt;
+                /*padding: 10px 40px 10px 20px;*/
                 cursor: pointer;
+                text-align: left;
 
                 &:hover {
-                    background: rgba(0, 0, 0, 0.2);
+                    background-color: @buttonHover;
                 }
             }
         }

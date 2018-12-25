@@ -25,13 +25,14 @@
     }
 
     .btn-my-primary:hover {
-        background-color: white;
-        color: black;
+        background-color: @buttonHover;
+        color: @mainTextColor;
     }
 
     .btn-my-primary:focus {
         box-shadow: none !important;
     }
+
 
     /*.btn:focus,.btn:active:focus,.btn.active:focus,*/
     /*.btn.focus,.btn:active.focus,.btn.active.focus {*/

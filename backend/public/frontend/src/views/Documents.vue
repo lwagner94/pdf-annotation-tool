@@ -140,6 +140,10 @@
         color: @mainTextColor;
     }
 
+    strong {
+        color: @mainTextColor;
+    }
+
     #content {
         top: 3em;
     }
@@ -154,7 +158,7 @@
     .flex-item {
         width: 24em;
         height: 15em;
-        border: 1px solid lightgrey;
+        border: 1px solid @focusPage;
         border-radius: 0.3em;
         margin: 0.5em;
         padding: 0.5em;

@@ -3,20 +3,19 @@
         <template v-if="pageCount">
             <div class="input-group input-group-sm">
                 <input
-                        class="form-control"
+                        class="form-control select-my"
                         :value="value"
                         @input="input"
                         min="1"
                         :max="pageCount"
                         type="number"
                 />
-                <div class="input-group-append">
+                <div class="input-group-append btn-my-primary">
                     <span class="input-group-text">of {{ pageCount }}</span>
                 </div>
             </div>
 
         </template>
-        <!--<b-form-input v-else type="number"></b-form-input>-->
     </div>
 </template>
 
@@ -44,17 +43,4 @@
 </script>
 
 <style scoped>
-    /*.pdf-paginator {*/
-        /*color: white;*/
-        /*font-weight: bold;*/
-    /*}*/
-
-    /*.pdf-paginator input {*/
-        /*width: 2em;*/
-        /*padding: 0.3em;*/
-    /*}*/
-
-    .nobreak {
-        white-space: nowrap;
-    }
 </style>
