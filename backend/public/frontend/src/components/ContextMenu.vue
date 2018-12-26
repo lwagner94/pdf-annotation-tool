@@ -2,7 +2,8 @@
     <div class="context-menu" ref="menu" :style="style">
         <ul class="context-menu-options">
             <li @click="deleteCB(); visible = false" class="context-menu-option">Delete</li>
-            <li @click="repeatFontStyleCB(); visible = false" class="context-menu-option">Repeate by font style</li>
+            <li @click="repeatFontStyleCB(); visible = false" class="context-menu-option">Repeat by font style</li>
+            <li @click="repeatByPageCB(); visible = false" class="context-menu-option">Repeate by Page</li>
 
             <li v-for="label in labels"
                 :key="label.id"
@@ -27,7 +28,8 @@
                 top: 100,
                 deleteCB: null,
                 repeatFontStyleCB: null,
-                setLabelCB: null
+                repeatByPageCB: null,
+                setLabelCB: null,
 
             }
         },
@@ -62,6 +64,10 @@
 
             setRepeatByFontStyleCallback(cb) {
                 this.repeatFontStyleCB = cb;
+            },
+
+            setRepeatByPageCallback(cb) {
+                this.repeatByPageCB = cb;
             },
 
             setLabelCallback(cb) {

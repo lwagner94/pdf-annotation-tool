@@ -11,6 +11,12 @@ public class AutoAnnotatorApplication {
             var obj = ByFontStyleRequest.fromJSON(req.body());
             return gson.toJson(obj.getRegionsOfInterest());
         });
+
+        put("/api/bypage", (req, res) -> {
+            var gson = new Gson();
+            var obj = ByPageNumRequest.fromJSON(req.body());
+            return gson.toJson(obj.getRegionsOfInterest());
+        });
     }
 
 }

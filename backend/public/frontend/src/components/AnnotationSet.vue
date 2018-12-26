@@ -382,6 +382,16 @@
 
             });
 
+            EventBus.$on("repeat-by-page", async (localID, mode) => {
+                const annotation = this.annotations.find(annotation => annotation.localID === localID);
+                const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/bypage?mode=${mode}`);
+
+                this.fetchAnnotations().then(() => {
+                    EventBus.$emit("reload-annotations");
+                });
+
+            });
+
         },
 
         beforeDestroy() {

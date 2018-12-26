@@ -480,6 +480,73 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkO
     }
 });
 
+router.get("/:ObjectId_set/annotations/:ObjectId_annotation/bypage", checkObjectIdParams, async (req, res) => {
+    try {
+        const set = await models.AnnotationSet.findById(req.params.ObjectId_set);
+        if (!set) {
+            throw new HTTPError(404);
+        }
+
+        const annotation = await models.Annotation.findById(req.params.ObjectId_annotation);
+
+        if (!annotation) {
+            throw new HTTPError(404);
+        }
+
+        const parsedAnnotationProperties = JSON.parse(annotation.properties);
+
+        if (parsedAnnotationProperties.type !== "rectangle") {
+            throw new HTTPError(400);
+        }
+
+        const requestBody = {
+            documentID: set.documentID,
+            mode: req.query.mode,
+            regionOfInterest: {
+                pageNumber: annotation.pageNumber,
+                x: parsedAnnotationProperties.data.x,
+                y: parsedAnnotationProperties.data.y,
+                width: parsedAnnotationProperties.data.width,
+                height: parsedAnnotationProperties.data.height
+            }
+        };
+
+        const response = await fetch(AUTOANNOTATOR_URL + "/api/bypage", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const result = await response.json();
+
+        const newAnnotations = [];
+        for (let newAnnotation of result) {
+            newAnnotations.push(new models.Annotation({
+                setID: set._id,
+                labelID: annotation.labelID,
+                pageNumber: newAnnotation.pageNumber,
+                properties: JSON.stringify({
+                    type: "rectangle",
+                    data: {
+                        x: newAnnotation.x,
+                        y: newAnnotation.y,
+                        width: newAnnotation.width,
+                        height: newAnnotation.height
+                    }
+                })
+            }).save());
+        }
+
+        await Promise.all(newAnnotations);
+        res.status(200).send("ok");
+    }
+    catch (e) {
+        handleError(res, e);
+    }
+});
+
 
 router.get("/:ObjectId_set/labels", checkObjectIdParams, async (req, res) => {
     try {

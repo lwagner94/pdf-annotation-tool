@@ -162,6 +162,10 @@ class Annotations {
         this.menu.setRepeatByFontStyleCallback(() => {
             this.repeatByFontStyle(annotationInstance);
         });
+        this.menu.setRepeatByPageCallback(() => {
+            this.repeatByPage(annotationInstance);
+        });
+
         this.menu.setLabelCallback((label) => {
             annotationInstance.label = label;
             this.updateAnnotation(annotationInstance);
@@ -213,6 +217,10 @@ class Annotations {
 
     repeatByFontStyle(annotation) {
         EventBus.$emit("repeat-by-fontstyle", annotation.localID);
+    }
+
+    repeatByPage(annotation) {
+        EventBus.$emit("repeat-by-page", annotation.localID, "even");
     }
 
     storeAnnotation(annotation) {
