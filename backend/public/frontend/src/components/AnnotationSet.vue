@@ -48,8 +48,12 @@
             </b-modal>
 
             <b-modal ref="createLabelModal" @ok="createLabelFromDialog">
-                <input v-model="labelName">
-                <input v-model="labelColor">
+                <b-form-input v-model="labelName"
+                              type="text"
+                              placeholder="Enter label name"></b-form-input>
+                <div id="colorpicker">
+                    <compact-picker v-model="labelColor"></compact-picker>
+                </div>
             </b-modal>
         </div>
     </div>
@@ -60,10 +64,13 @@
     import uuid from "uuid-random"
 
     import EventBus from "@/EventBus"
+    import {Compact} from 'vue-color'
 
     export default {
         name: "AnnotationSet",
-        components: {},
+        components: {
+            'compact-picker': Compact
+        },
         props: {
             documentID: String
         },
@@ -75,8 +82,8 @@
                 activeLabel: {},
                 activeSetID: undefined,
                 dialogSetName: "New annotation set",
-                labelName: "New Label",
-                labelColor: "green"
+                labelName: undefined,
+                labelColor: "#FF0000"
             }
         },
 
@@ -124,7 +131,7 @@
             },
 
             createLabelFromDialog() {
-                this.createLabel(this.labelName, this.labelColor);
+                this.createLabel(this.labelName, this.labelColor.hex);
             },
 
             createAnnotationSet(name) {
@@ -259,7 +266,7 @@
                         }
 
                         if (!labels.length) {
-                            this.createLabel("<default>", "yellow");
+                            this.createLabel("<default>", "#FFFF00");
                         }
                         else {
                             this.labels = labels;
@@ -397,5 +404,11 @@
     .float-left {
         float: left;
         padding-left: 0.5em;
+    }
+
+    #colorpicker {
+        margin: 2em;
+        display: flex;
+        justify-content: center;
     }
 </style>

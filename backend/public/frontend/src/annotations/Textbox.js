@@ -12,9 +12,10 @@ export default class Textbox extends Annotation {
             backgroundColor: label.color,
             fill: "black",
             lockScalingY: true,
-            fontSize: 20,
+            fontSize: 10,
             scaleX: scale,
-            scaleY: scale
+            scaleY: scale,
+            lockRotation: true
         });
 
         super(context, object, x, y, width, height, scale, localID, label);

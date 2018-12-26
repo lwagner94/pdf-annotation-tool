@@ -160,6 +160,13 @@ class Annotations {
                 opt.target.annotationInstance.handleDoubleClick(self.context);
             }
         });
+
+        this.context.on("selection:created", opt => {
+            if (opt.selected.length > 1) {
+                self.context.discardActiveObject();
+            }
+        });
+
     }
 
     drawAnnotations() {

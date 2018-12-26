@@ -1,20 +1,22 @@
 import Annotation from "./Annotation"
 import {fabric} from "fabric";
 
-const IMGSCALE = 1;
-
-
 export default class StickyNote extends Annotation {
     constructor(context, x, y, width, height, scale, localID, label) {
-        let placeholder = new fabric.Rect({
-            width: 300,
-            height: height,
+        let placeholder = new fabric.Textbox("Note", {
+            width: 50,
+            height: 50,
             left: x,
             top: y,
-            fill: '#999',
+            backgroundColor: label.color,
+            fill: 'black',
             scaleX: scale,
             scaleY: scale,
-            // fireRightClick: true
+            fontSize: 15,
+            lockRotation: true,
+            lockScalingX: true,
+            lockScalingY: true,
+            editable: false
         });
 
 
@@ -27,26 +29,10 @@ export default class StickyNote extends Annotation {
             fill: "black",
             lockScalingY: true,
             lockScalingX: true,
-            fontSize: 20,
-        });
-
-        this._realScale = scale;
-        this._scale = this._scale * IMGSCALE;
-
-        const self = this;
-        new fabric.Image.fromURL("/sticky.png", function (img) {
-            img.set("scaleX", self._scale);
-            img.set("scaleY", self._scale);
-            img.set("left", self.x * self._scale / IMGSCALE);
-            img.set("top", self.y * self._scale / IMGSCALE);
-            // img.set("lockScalingX", true);
-            // img.set("lockScalingY", true);
-
-
-            self.context.remove(placeholder);
-            img.annotationInstance = self;
-            self.object = img;
-            self.addToContext();
+            scaleX: scale,
+            scaleY: scale,
+            fontSize: 10,
+            lockRotation: true
         });
 
         this.expandedView.annotationInstance = this;
@@ -105,10 +91,16 @@ export default class StickyNote extends Annotation {
     set scale(s) {
         this._scale = s;
 
-        this.object.set("scaleX", this._scale * IMGSCALE);
-        this.object.set("scaleY", this._scale * IMGSCALE);
+        this.object.set("scaleX", this._scale);
+        this.object.set("scaleY", this._scale );
 
         this.object.set("left", this._x * this._scale);
         this.object.set("top", this._y * this._scale);
+
+        this.expandedView.set("scaleX", this._scale);
+        this.expandedView.set("scaleY", this._scale );
+
+        this.expandedView.set("left", this._x * this._scale);
+        this.expandedView.set("top", this._y * this._scale);
     }
 }
