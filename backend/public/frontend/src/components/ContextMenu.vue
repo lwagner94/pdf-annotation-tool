@@ -1,15 +1,22 @@
 <template>
     <div class="context-menu" ref="menu" :style="style">
         <ul class="context-menu-options">
-            <li v-for="entry in menuEntries"
-                :key="entry.identifier"
-                @click="dispatch(entry)"
-                class="context-menu-option">{{entry.text}}</li>
+            <li @click="deleteCB(); visible = false" class="context-menu-option">Delete</li>
+            <li @click="repeatFontStyleCB(); visible = false" class="context-menu-option">Repeate by font style</li>
+
+            <li v-for="label in labels"
+                :key="label.id"
+                @click="setLabelCB(label); visible = false"
+                class="context-menu-option">
+                <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
+            </li>
         </ul>
     </div>
 </template>
 
 <script>
+    import {mapGetters} from 'vuex';
+
     export default {
         name: "ContextMenu",
 
@@ -18,13 +25,10 @@
                 visible: false,
                 left: 100,
                 top: 100,
-                menuEntries: [
-                    {
-                        identifier: "Test",
-                        text: "Test",
-                        action: () => console.log("This is a test.")
-                    }
-                ]
+                deleteCB: null,
+                repeatFontStyleCB: null,
+                setLabelCB: null
+
             }
         },
 
@@ -35,7 +39,11 @@
                     left: this.left + "px",
                     top: this.top + "px"
                 }
-            }
+            },
+
+            ...mapGetters([
+                "labels",
+            ]),
         },
 
         methods: {
@@ -48,15 +56,24 @@
                 this.top = y;
             },
 
-            dispatch(entry) {
-                entry.action();
-                this.visible = false;
+            setDeleteCallback(cb) {
+                this.deleteCB = cb;
             },
 
-            setMenuEntries(entries) {
-                this.menuEntries = entries;
+            setRepeatByFontStyleCallback(cb) {
+                this.repeatFontStyleCB = cb;
+            },
+
+            setLabelCallback(cb) {
+                this.setLabelCB = cb;
+            },
+
+            cleanup() {
+                this.deleteCB = null;
+                this.repeatFontStyleCB = null;
+                this.setLabelCB = null;
             }
-        }
+        },
     }
 </script>
 

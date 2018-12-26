@@ -45,4 +45,9 @@ export default class Rectangle extends Annotation {
     static drawable() {
         return true;
     }
+
+    applyColor() {
+        this.object.set("fill", colorHexToRGBA(this.label.color, 0.5));
+        super.applyColor();
+    }
 }

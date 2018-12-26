@@ -56,27 +56,10 @@ class Annotations {
 
 
             if (opt.button === 3 && opt.target) {
-                this.menu.setVisible(true);
-                this.menu.setPosition(mouse.x, mouse.y);
-                this.menu.setMenuEntries([
-                    {
-                        identifier: "remove",
-                        text: "Remove Annotation",
-                        action: () => {
-                            self.removeAnnotation(opt.target.annotationInstance);
-                        }
-                    },
-                    {
-                        identifier: "byfontstyle",
-                        text: "Repeat annotation based on font style",
-                        action: () => {
-                            self.repeatByFontStyle(opt.target.annotationInstance);
-                        }
-                    }
-                ]);
+                self.showContextMenu(mouse.x, mouse.y, opt.target.annotationInstance);
             }
             else {
-                this.menu.setVisible(false);
+                self.hideContextMenu();
             }
 
             if (!self.drawMode) {
@@ -167,6 +150,27 @@ class Annotations {
             }
         });
 
+    }
+
+    showContextMenu(x, y, annotationInstance) {
+        this.menu.setVisible(true);
+        this.menu.setPosition(x, y);
+
+        this.menu.setDeleteCallback(() => {
+            this.removeAnnotation(annotationInstance)
+        });
+        this.menu.setRepeatByFontStyleCallback(() => {
+            this.repeatByFontStyle(annotationInstance);
+        });
+        this.menu.setLabelCallback((label) => {
+            annotationInstance.label = label;
+            this.updateAnnotation(annotationInstance);
+        });
+    }
+
+    hideContextMenu() {
+        this.menu.setVisible(false);
+        this.menu.cleanup();
     }
 
     drawAnnotations() {

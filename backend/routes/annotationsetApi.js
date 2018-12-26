@@ -170,6 +170,7 @@ router.get("/:ObjectId_set/export", checkObjectIdParams, async (req, res) => {
             throw new HTTPError(500);
         }
         const annotations = await models.Annotation.find({setID: set.id});
+        const labels = await models.Label.find({setID: set.id});
 
 
         const cleanedAnnotations = [];
@@ -178,8 +179,18 @@ router.get("/:ObjectId_set/export", checkObjectIdParams, async (req, res) => {
             const parsedProperties = JSON.parse(annotation.properties);
             cleanedAnnotations.push({
                 pageNumber: annotation.pageNumber,
+                label: labels.find(label => label._id.equals(annotation.labelID)).name,
                 type: parsedProperties.type,
                 data: parsedProperties.data
+            });
+        }
+
+        const cleanedLabels = [];
+
+        for (let label of labels) {
+            cleanedLabels.push({
+                name: label.name,
+                color: label.color
             });
         }
 
@@ -190,7 +201,8 @@ router.get("/:ObjectId_set/export", checkObjectIdParams, async (req, res) => {
             },
             annotationSet: {
                 name: set.name,
-                annotations: cleanedAnnotations
+                annotations: cleanedAnnotations,
+                labels: cleanedLabels
             }
         };
 
@@ -234,11 +246,23 @@ router.post("/import", checkObjectIdParams, async (req, res) => {
 
         const savedSet = await newSet.save();
 
+        let newLabels = [];
+        for (let label of importedFile.annotationSet.labels) {
+            newLabels.push(new models.Label({
+                setID: savedSet._id,
+                name: label.name,
+                color: label.color
+            }).save());
+        }
+
+        newLabels = await Promise.all(newLabels);
+
         const newAnnotations = [];
         for (let annotation of importedFile.annotationSet.annotations) {
             const newAnnotation = new models.Annotation({
                 setID: savedSet._id,
                 pageNumber: annotation.pageNumber,
+                labelID: newLabels.find(label => label.name === annotation.label)._id,
                 properties: JSON.stringify({
                     type: annotation.type,
                     data: annotation.data

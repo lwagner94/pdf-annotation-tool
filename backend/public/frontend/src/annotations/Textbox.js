@@ -50,4 +50,9 @@ export default class Textbox extends Annotation {
         return true;
     }
 
+    applyColor() {
+        this.object.set("backgroundColor", this.label.color);
+        super.applyColor();
+    }
+
 }

@@ -103,4 +103,9 @@ export default class StickyNote extends Annotation {
         this.expandedView.set("left", this._x * this._scale);
         this.expandedView.set("top", this._y * this._scale);
     }
+
+    applyColor() {
+        this.object.set("backgroundColor", this.label.color);
+        super.applyColor();
+    }
 }

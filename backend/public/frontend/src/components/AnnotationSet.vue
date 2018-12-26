@@ -4,7 +4,7 @@
             <b-input-group>
                 <b-dropdown size="sm" variant="my-primary">
                     <template slot="button-content">
-                        <span :style="'color: ' + activeLabel.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{activeLabel.name}}</span>
+                        <strong>Label: </strong><span :style="'color: ' + activeLabel.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{activeLabel.name}}</span>
                     </template>
 
                     <b-dropdown-item v-for="label in labels"
@@ -17,24 +17,14 @@
                     <b-dropdown-item @click="deleteLabel"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Label</span></b-dropdown-item>
                 </b-dropdown>
 
-
-                <!--<b-dropdown size="sm" text="Manage labels" slot="append" variant="my-primary">-->
-                    <!---->
-                <!--</b-dropdown>-->
             </b-input-group>
 
         </div>
         <div class="float-left">
             <b-input-group>
-                <!--<b-form-select v-model="activeSetID" size="sm" class="mode-select">-->
-                    <!--<option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">-->
-                        <!--{{annotationSet.name}}-->
-                    <!--</option>-->
-                <!--</b-form-select>-->
-
-                <b-dropdown size="sm" text="Manage sets" variant="my-primary">
+                <b-dropdown size="sm" variant="my-primary" offset="-5em">
                     <template slot="button-content">
-                        {{activeSet.name}}
+                        <strong>Set: </strong> {{activeSet.name}}
                     </template>
 
                     <b-dropdown-item v-for="annotationSet in annotationSets" :key="annotationSet.id" @click="setActiveSet(annotationSet)">
@@ -239,55 +229,65 @@
             },
 
             fetchAnnotations() {
-                fetch(`/api/annotationsets/${this.activeSet.id}/annotations`)
+                return fetch(`/api/annotationsets/${this.activeSet.id}/annotations`)
                     .then(result => result.json())
                     .then(result => {
-                        this.$store.commit("setAnnotations", []);
-                        let annotations = [];
+                        const promise = new Promise((resolve, reject) => {
+                            this.$store.commit("setAnnotations", []);
+                            let annotations = [];
 
-                        for (let annotation of result) {
-                            annotations.push({
-                                id: annotation.id,
-                                setID: annotation.setID,
-                                labelID: annotation.labelID,
-                                pageNumber: annotation.pageNumber,
-                                properties: annotation.properties,
-                                localID: uuid(),
-                                dirty: false,
-                                created: false,
-                                deleted: false
-                            });
-                        }
+                            for (let annotation of result) {
+                                annotations.push({
+                                    id: annotation.id,
+                                    setID: annotation.setID,
+                                    labelID: annotation.labelID,
+                                    pageNumber: annotation.pageNumber,
+                                    properties: annotation.properties,
+                                    localID: uuid(),
+                                    dirty: false,
+                                    created: false,
+                                    deleted: false
+                                });
+                            }
 
-                        this.$store.commit("setAnnotations", annotations);
-                        EventBus.$emit("reload-annotations");
+                            this.$store.commit("setAnnotations", annotations);
+                            resolve();
+                        });
+
+                        return promise;
                     })
             },
 
             fetchLabels() {
-                fetch(`/api/annotationsets/${this.activeSet.id}/labels`)
+                return fetch(`/api/annotationsets/${this.activeSet.id}/labels`)
                     .then(result => result.json())
                     .then(result => {
-                        let labels = [];
+                        const promise = new Promise((resolve, reject) => {
+                            let labels = [];
 
-                        for (let label of result) {
-                            labels.push({
-                                id: label.id,
-                                setID: label.setID,
-                                name: label.name,
-                                color: label.color
-                            });
-                        }
+                            for (let label of result) {
+                                labels.push({
+                                    id: label.id,
+                                    setID: label.setID,
+                                    name: label.name,
+                                    color: label.color
+                                });
+                            }
 
-                        if (!labels.length) {
-                            this.createLabel("<default>", "#FFFF00");
-                        }
-                        else {
-                            this.labels = labels;
-                            this.setActiveLabel(labels[0]);
-                            this.$store.commit("setLabels", labels);
-                        }
-                    })
+                            if (!labels.length) {
+                                this.createLabel("<default>", "#FFFF00");
+                            }
+                            else {
+                                this.labels = labels;
+                                this.setActiveLabel(labels[0]);
+                                this.$store.commit("setLabels", labels);
+                            }
+
+                            resolve();
+                        });
+
+                        return promise;
+                    });
             }
         },
 
@@ -361,13 +361,12 @@
                     } else if (annotation.deleted) {
                         fetch(`/api/annotationsets/${self.activeSet.id}/annotations/${annotation.id}`, {
                             method: "DELETE",
-                        })
-                            .then(() => {
-                                // TODO: Check error!
-                                self.$store.commit("deleteAnnotation", {
-                                    localID: annotation.localID,
-                                });
+                        }).then(() => {
+                            // TODO: Check error!
+                            self.$store.commit("deleteAnnotation", {
+                                localID: annotation.localID,
                             });
+                        });
                     }
 
                 }
@@ -377,7 +376,9 @@
                 const annotation = this.annotations.find(annotation => annotation.localID === localID);
                 const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/byfontstyle`);
 
-                this.fetchAnnotations();
+                this.fetchAnnotations().then(() => {
+                    EventBus.$emit("reload-annotations");
+                });
 
             });
 
@@ -401,8 +402,12 @@
 
         watch: {
             activeSet() {
-                this.fetchLabels();
-                this.fetchAnnotations();
+                this.fetchLabels().then(() => {
+                    return this.fetchAnnotations();
+                }).then(() => {
+                    EventBus.$emit("reload-annotations");
+                });
+
             },
 
         }

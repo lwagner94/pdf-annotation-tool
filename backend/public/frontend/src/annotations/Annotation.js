@@ -1,3 +1,4 @@
+import colorHexToRGBA from "../utils/color";
 
 export default class Annotation {
     constructor(context, object, x, y, width, height, scale, localID, label) {
@@ -42,6 +43,10 @@ export default class Annotation {
     recalculatePosition() {
         this.x = this.object.left / this._scale;
         this.y = this.object.top / this._scale;
+    }
+
+    applyColor() {
+        this.context.renderAll();
     }
 
     toJSON() {
@@ -99,6 +104,11 @@ export default class Annotation {
 
         this.object.set("left", this._x * this._scale);
         this.object.set("top", this._y * this._scale);
+    }
+
+    set label(label) {
+        this._label = label;
+        this.applyColor();
     }
 
     get label() {
