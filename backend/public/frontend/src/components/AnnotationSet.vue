@@ -12,25 +12,36 @@
                                      @click="setActiveLabel(label)">
                         <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
                     </b-dropdown-item>
-                </b-dropdown>
-
-
-                <b-dropdown size="sm" text="Manage labels" slot="append" variant="my-primary">
+                    <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-item @click="showCreateLabel"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Label</span></b-dropdown-item>
                     <b-dropdown-item @click="deleteLabel"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Label</span></b-dropdown-item>
                 </b-dropdown>
+
+
+                <!--<b-dropdown size="sm" text="Manage labels" slot="append" variant="my-primary">-->
+                    <!---->
+                <!--</b-dropdown>-->
             </b-input-group>
 
         </div>
         <div class="float-left">
             <b-input-group>
-                <b-form-select v-model="activeSetID" size="sm" class="mode-select">
-                    <option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">
-                        {{annotationSet.name}}
-                    </option>
-                </b-form-select>
+                <!--<b-form-select v-model="activeSetID" size="sm" class="mode-select">-->
+                    <!--<option v-for="annotationSet in annotationSets" :value="annotationSet.id" :key="annotationSet.id">-->
+                        <!--{{annotationSet.name}}-->
+                    <!--</option>-->
+                <!--</b-form-select>-->
 
-                <b-dropdown size="sm" text="Manage sets" slot="append" variant="my-primary">
+                <b-dropdown size="sm" text="Manage sets" variant="my-primary">
+                    <template slot="button-content">
+                        {{activeSet.name}}
+                    </template>
+
+                    <b-dropdown-item v-for="annotationSet in annotationSets" :key="annotationSet.id" @click="setActiveSet(annotationSet)">
+                        {{annotationSet.name}}
+                    </b-dropdown-item>
+
+                    <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
                     <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
                     <b-dropdown-divider></b-dropdown-divider>
@@ -80,7 +91,7 @@
                 annotationSets: [],
                 labels: [],
                 activeLabel: {},
-                activeSetID: undefined,
+                activeSet: {},
                 dialogSetName: "New annotation set",
                 labelName: undefined,
                 labelColor: "#FF0000"
@@ -93,6 +104,9 @@
                 this.$store.commit("setActiveLabel", this.activeLabel);
             },
 
+            setActiveSet(set) {
+                this.activeSet = set;
+            },
 
             showImport() {
                 this.$refs.importModal.show();
@@ -163,7 +177,7 @@
                     color: color
                 };
 
-                fetch(`/api/annotationsets/${this.activeSetID}/labels`, {
+                fetch(`/api/annotationsets/${this.activeSet.id}/labels`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -179,7 +193,7 @@
             deleteLabel() {
                 const self = this;
 
-                fetch(`/api/annotationsets/${this.activeSetID}/labels/` + this.activeLabel.id, {
+                fetch(`/api/annotationsets/${this.activeSet.id}/labels/` + this.activeLabel.id, {
                     method: "DELETE"
                 }).then(response => {
                     self.fetchLabels();
@@ -189,7 +203,7 @@
             deleteAnnotationSet() {
                 const self = this;
 
-                fetch("/api/annotationsets/" + this.activeSetID, {
+                fetch("/api/annotationsets/" + this.activeSet.id, {
                     method: "DELETE"
                 }).then(response => {
                     self.fetchAnnotationSets();
@@ -214,7 +228,7 @@
                         for (let annotationSet of result) {
                             if (annotationSet.documentID === self.documentID) {
                                 self.annotationSets.push(annotationSet);
-                                self.activeSetID = annotationSet.id;
+                                self.activeSet = annotationSet;
                             }
                         }
 
@@ -225,7 +239,7 @@
             },
 
             fetchAnnotations() {
-                fetch(`/api/annotationsets/${this.activeSetID}/annotations`)
+                fetch(`/api/annotationsets/${this.activeSet.id}/annotations`)
                     .then(result => result.json())
                     .then(result => {
                         this.$store.commit("setAnnotations", []);
@@ -251,7 +265,7 @@
             },
 
             fetchLabels() {
-                fetch(`/api/annotationsets/${this.activeSetID}/labels`)
+                fetch(`/api/annotationsets/${this.activeSet.id}/labels`)
                     .then(result => result.json())
                     .then(result => {
                         let labels = [];
@@ -285,13 +299,13 @@
                     if (annotation.created) {
 
                         let annotationToPost = {
-                            setID: self.activeSetID,
+                            setID: self.activeSet.id,
                             labelID: annotation.labelID,
                             pageNumber: annotation.pageNumber,
                             properties: annotation.properties
                         };
 
-                        fetch(`/api/annotationsets/${self.activeSetID}/annotations`, {
+                        fetch(`/api/annotationsets/${self.activeSet.id}/annotations`, {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
@@ -304,7 +318,7 @@
 
                                 self.$store.commit("storeAnnotation", {
                                     id: id,
-                                    setID: self.activeSetID,
+                                    setID: self.activeSet.id,
                                     labelID: annotation.labelID,
                                     pageNumber: annotation.pageNumber,
                                     properties: annotation.properties,
@@ -321,7 +335,7 @@
                             properties: annotation.properties
                         };
 
-                        fetch(`/api/annotationsets/${self.activeSetID}/annotations/${annotation.id}`, {
+                        fetch(`/api/annotationsets/${self.activeSet.id}/annotations/${annotation.id}`, {
                             method: "PUT",
                             headers: {
                                 "Content-Type": "application/json"
@@ -334,7 +348,7 @@
 
                                 self.$store.commit("storeAnnotation", {
                                     id: id,
-                                    setID: self.activeSetID,
+                                    setID: self.activeSet.id,
                                     labelID: annotation.labelID,
                                     pageNumber: annotation.pageNumber,
                                     properties: annotation.properties,
@@ -345,7 +359,7 @@
                                 });
                             });
                     } else if (annotation.deleted) {
-                        fetch(`/api/annotationsets/${self.activeSetID}/annotations/${annotation.id}`, {
+                        fetch(`/api/annotationsets/${self.activeSet.id}/annotations/${annotation.id}`, {
                             method: "DELETE",
                         })
                             .then(() => {
@@ -361,7 +375,7 @@
 
             EventBus.$on("repeat-by-fontstyle", async (localID) => {
                 const annotation = this.annotations.find(annotation => annotation.localID === localID);
-                const response = await fetch(`/api/annotationsets/${this.activeSetID}/annotations/${annotation.id}/byfontstyle`);
+                const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/byfontstyle`);
 
                 this.fetchAnnotations();
 
@@ -371,6 +385,7 @@
 
         beforeDestroy() {
             EventBus.$off("annotations-modified");
+            EventBus.$off("repeat-by-fontstyle");
         },
 
         computed: {
@@ -379,13 +394,13 @@
             ]),
 
             exportUrl() {
-                return `/api/annotationsets/${this.activeSetID}/export`;
+                return `/api/annotationsets/${this.activeSet.id}/export`;
             },
 
         },
 
         watch: {
-            activeSetID(id) {
+            activeSet() {
                 this.fetchLabels();
                 this.fetchAnnotations();
             },
