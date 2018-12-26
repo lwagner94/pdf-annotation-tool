@@ -23,6 +23,7 @@ public class ByFontStyleRequest {
 
         var stripper = new FontStyleExtractor(document, this.regionOfInterest);
         var styles = stripper.getFontStyles();
+
         var style = ((FontStyle) styles.toArray()[0]);
         var roiExtractor = new RegionOfInterestExtractor(document, style);
         var rois = roiExtractor.getRegionsOfInterest();

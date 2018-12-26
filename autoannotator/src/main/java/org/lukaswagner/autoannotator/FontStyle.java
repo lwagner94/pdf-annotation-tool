@@ -25,7 +25,9 @@ public class FontStyle {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FontStyle fontStyle = (FontStyle) o;
-        return Float.compare(fontStyle.fontSize, fontSize) == 0 &&
+        var sizeDiff = Math.abs(fontStyle.fontSize - fontSize);
+
+        return sizeDiff <= 0.3 &&
                 Objects.equals(fontName, fontStyle.fontName);
     }
 

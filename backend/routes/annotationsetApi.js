@@ -273,7 +273,7 @@ router.post("/import", checkObjectIdParams, async (req, res) => {
         }
 
         Promise.all(newAnnotations).then(() => {
-            res.location(`/api/annotationsets/${savedSet._id}/`)
+            res.location(`/api/annotationsets/${savedSet._id}/`);
             res.status(201).send();
         });
     }
@@ -458,6 +458,7 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkO
         for (let newAnnotation of result) {
             newAnnotations.push(new models.Annotation({
                 setID: set._id,
+                labelID: annotation.labelID,
                 pageNumber: newAnnotation.pageNumber,
                 properties: JSON.stringify({
                     type: "rectangle",
