@@ -1,5 +1,6 @@
 <template>
     <div class="pdf-viewer">
+        <progress-spinner></progress-spinner>
         <b-navbar
                 variant="my"
                 class="box-shadow">
@@ -73,6 +74,7 @@
     import AnnotationSet from "./AnnotationSet";
     import DrawModeSelector from "./DrawModeSelector";
     import RepeatDialog from "./RepeatDialog";
+    import ProgressSpinner from "./ProgressSpinner";
 
     function floor(value, precision) {
         const multiplier = Math.pow(10, precision || 0);
@@ -91,7 +93,8 @@
             PDFPreview,
             PDFZoom,
             PreviewIcon,
-            RepeatDialog
+            RepeatDialog,
+            ProgressSpinner
         },
 
         props: {

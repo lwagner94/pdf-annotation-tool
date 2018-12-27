@@ -510,7 +510,7 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/bypage", checkObject
                 height: parsedAnnotationProperties.data.height
             }
         };
-        
+
         const response = await fetch(AUTOANNOTATOR_URL + "/api/bypage", {
             method: "PUT",
             headers: {

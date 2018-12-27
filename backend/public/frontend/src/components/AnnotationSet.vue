@@ -146,6 +146,7 @@
                     name: name
                 };
 
+                EventBus.$emit("show-spinner", true);
                 fetch("/api/annotationsets/", {
                     method: "POST",
                     headers: {
@@ -155,6 +156,7 @@
                 })
                     .then(response => {
                         // TODO: Error handling
+                        EventBus.$emit("show-spinner", false);
                         self.fetchAnnotationSets();
                     })
             },
@@ -166,7 +168,7 @@
                     name: name,
                     color: color
                 };
-
+                EventBus.$emit("show-spinner", true);
                 fetch(`/api/annotationsets/${this.activeSet.id}/labels`, {
                     method: "POST",
                     headers: {
@@ -176,6 +178,7 @@
                 })
                     .then(response => {
                         // TODO: Error handling
+                        EventBus.$emit("show-spinner", false);
                         self.fetchLabels();
                     })
             },
@@ -183,9 +186,11 @@
             deleteLabel() {
                 const self = this;
 
+                EventBus.$emit("show-spinner", true);
                 fetch(`/api/annotationsets/${this.activeSet.id}/labels/` + this.activeLabel.id, {
                     method: "DELETE"
                 }).then(response => {
+                    EventBus.$emit("show-spinner", false);
                     self.fetchLabels();
                 });
             },
@@ -193,9 +198,11 @@
             deleteAnnotationSet() {
                 const self = this;
 
+                EventBus.$emit("show-spinner", true);
                 fetch("/api/annotationsets/" + this.activeSet.id, {
                     method: "DELETE"
                 }).then(response => {
+                    EventBus.$emit("show-spinner", false);
                     self.fetchAnnotationSets();
                 });
             },
@@ -211,9 +218,11 @@
             fetchAnnotationSets() {
                 const self = this;
 
+                EventBus.$emit("show-spinner", true);
                 fetch("/api/annotationsets")
                     .then(result => result.json())
                     .then(result => {
+                        EventBus.$emit("show-spinner", false);
                         self.annotationSets = [];
                         for (let annotationSet of result) {
                             if (annotationSet.documentID === self.documentID) {
@@ -229,9 +238,11 @@
             },
 
             fetchAnnotations() {
+                EventBus.$emit("show-spinner", true);
                 return fetch(`/api/annotationsets/${this.activeSet.id}/annotations`)
                     .then(result => result.json())
                     .then(result => {
+                        EventBus.$emit("show-spinner", false);
                         const promise = new Promise((resolve, reject) => {
                             this.$store.commit("setAnnotations", []);
                             let annotations = [];
@@ -259,9 +270,11 @@
             },
 
             fetchLabels() {
+                EventBus.$emit("show-spinner", true);
                 return fetch(`/api/annotationsets/${this.activeSet.id}/labels`)
                     .then(result => result.json())
                     .then(result => {
+                        EventBus.$emit("show-spinner", false);
                         const promise = new Promise((resolve, reject) => {
                             let labels = [];
 
@@ -305,6 +318,7 @@
                             properties: annotation.properties
                         };
 
+                        EventBus.$emit("show-spinner", true);
                         fetch(`/api/annotationsets/${self.activeSet.id}/annotations`, {
                             method: "POST",
                             headers: {
@@ -313,6 +327,7 @@
                             body: JSON.stringify(annotationToPost)
                         })
                             .then(response => {
+                                EventBus.$emit("show-spinner", false);
                                 const location = response.headers.get("location");
                                 const id = location.split("/")[5];
 
@@ -335,6 +350,7 @@
                             properties: annotation.properties
                         };
 
+                        EventBus.$emit("show-spinner", true);
                         fetch(`/api/annotationsets/${self.activeSet.id}/annotations/${annotation.id}`, {
                             method: "PUT",
                             headers: {
@@ -343,6 +359,7 @@
                             body: JSON.stringify(annotationToPost)
                         })
                             .then(response => {
+                                EventBus.$emit("show-spinner", false);
                                 const location = response.headers.get("location");
                                 const id = location.split("/")[5];
 
@@ -359,9 +376,11 @@
                                 });
                             });
                     } else if (annotation.deleted) {
+                        EventBus.$emit("show-spinner", true);
                         fetch(`/api/annotationsets/${self.activeSet.id}/annotations/${annotation.id}`, {
                             method: "DELETE",
                         }).then(() => {
+                            EventBus.$emit("show-spinner", false);
                             // TODO: Check error!
                             self.$store.commit("deleteAnnotation", {
                                 localID: annotation.localID,
@@ -374,8 +393,9 @@
 
             EventBus.$on("repeat-by-fontstyle", async (localID) => {
                 const annotation = this.annotations.find(annotation => annotation.localID === localID);
+                EventBus.$emit("show-spinner", true);
                 const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/byfontstyle`);
-
+                EventBus.$emit("show-spinner", false);
                 this.fetchAnnotations().then(() => {
                     EventBus.$emit("reload-annotations");
                 });
@@ -384,7 +404,9 @@
 
             EventBus.$on("repeat-by-page", async (localID, mode) => {
                 const annotation = this.annotations.find(annotation => annotation.localID === localID);
+                EventBus.$emit("show-spinner", true);
                 const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/bypage?mode=${mode}`);
+                EventBus.$emit("show-spinner", false);
 
                 this.fetchAnnotations().then(() => {
                     EventBus.$emit("reload-annotations");
