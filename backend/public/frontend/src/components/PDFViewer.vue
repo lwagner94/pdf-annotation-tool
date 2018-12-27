@@ -5,20 +5,25 @@
                 variant="my"
                 class="box-shadow">
 
-            <!--<b-button :to="{ name: 'documents'}" size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button>-->
-            <a href="/"><b-button size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button></a>
-            <div class="pdf-preview-toggle">
-                <b-button @click.prevent.stop="togglePreview" size="sm" variant="my-primary">
-                    <font-awesome-icon icon="eye" /><span class="icon-clearance">Preview</span>
-                </b-button>
-            </div>
+            <div>
+                <div class="float-left header-item">
+                    <a href="/"><b-button size="sm" variant="my-primary"><font-awesome-icon icon="chevron-left" /><span class="icon-clearance">Back</span></b-button></a>
+                </div>
+                <div class="pdf-preview-toggle float-left header-item">
+                    <b-button @click.prevent.stop="togglePreview" size="sm" variant="my-primary">
+                        <font-awesome-icon icon="eye" /><span class="icon-clearance">Preview</span>
+                    </b-button>
+                </div>
+                <div class="float-left">
+                    <PDFZoom
+                            :scale="scale"
+                            @change="updateScale"
+                            @fit="updateFit"
+                            class="header-item"
+                    />
+                </div>
 
-            <PDFZoom
-                    :scale="scale"
-                    @change="updateScale"
-                    @fit="updateFit"
-                    class="header-item"
-            />
+            </div>
 
             <PDFPaginator
                     v-model="currentPage"
@@ -26,11 +31,16 @@
                     class="header-item"
             />
 
-            <DrawModeSelector>
-            </DrawModeSelector>
-
-            <AnnotationSet :documentID="documentID">
-            </AnnotationSet>
+            <div>
+                <div class="float-left header-item">
+                    <DrawModeSelector>
+                    </DrawModeSelector>
+                </div>
+                <div class="float-left header-item">
+                    <AnnotationSet :documentID="documentID">
+                    </AnnotationSet>
+                </div>
+            </div>
         </b-navbar>
         <repeat-dialog></repeat-dialog>
         <error-message></error-message>
@@ -168,7 +178,7 @@
     }
 
     .header-item {
-        /*margin: 0 2.5em;*/
+        margin: 0 0.2em;
     }
 
     .pdf-viewer .pdf-viewer__document,
@@ -204,5 +214,9 @@
 
     .icon-clearance {
         margin-left: 0.5em;
+    }
+
+    .float-left {
+        float: left;
     }
 </style>

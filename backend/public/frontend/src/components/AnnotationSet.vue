@@ -1,44 +1,41 @@
 <template>
     <div>
-        <div class="float-left">
-            <b-input-group>
-                <b-dropdown size="sm" variant="my-primary">
-                    <template slot="button-content">
-                        <strong>Label: </strong><span :style="'color: ' + activeLabel.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{activeLabel.name}}</span>
-                    </template>
+        <div class="float-left header-item">
+            <b-dropdown size="sm" variant="my-primary btn-block" class="dropdown-size">
+                <template slot="button-content">
+                    <span :style="'color: ' + activeLabel.color"><font-awesome-icon icon="circle"  /></span>
+                    <span class="icon-clearance">{{activeLabel.name}}</span>
+                </template>
 
-                    <b-dropdown-item v-for="label in labels"
-                                     :key="label.id"
-                                     @click="setActiveLabel(label)">
-                        <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
-                    </b-dropdown-item>
-                    <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-item @click="showCreateLabel"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Label</span></b-dropdown-item>
-                    <b-dropdown-item @click="deleteLabel"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Label</span></b-dropdown-item>
-                </b-dropdown>
+                <b-dropdown-item v-for="label in labels"
+                                 :key="label.id"
+                                 @click="setActiveLabel(label)">
+                    <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
+                </b-dropdown-item>
+                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-item @click="showCreateLabel"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Label</span></b-dropdown-item>
+                <b-dropdown-item @click="deleteLabel"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Label</span></b-dropdown-item>
+            </b-dropdown>
 
-            </b-input-group>
 
         </div>
-        <div class="float-left">
-            <b-input-group>
-                <b-dropdown size="sm" variant="my-primary" offset="-50">
-                    <template slot="button-content">
-                        <strong>Set: </strong> {{activeSet.name}}
-                    </template>
+        <div class="float-left header-item">
+            <b-dropdown size="sm" variant="my-primary btn-block" offset="-50" class="dropdown-size">
+                <template slot="button-content">
+                    {{activeSet.name}}
+                </template>
 
-                    <b-dropdown-item v-for="annotationSet in annotationSets" :key="annotationSet.id" @click="setActiveSet(annotationSet)">
-                        {{annotationSet.name}}
-                    </b-dropdown-item>
+                <b-dropdown-item v-for="annotationSet in annotationSets" :key="annotationSet.id" @click="setActiveSet(annotationSet)">
+                    {{annotationSet.name}}
+                </b-dropdown-item>
 
-                    <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
-                    <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
-                    <b-dropdown-divider></b-dropdown-divider>
-                    <b-dropdown-item @click="showCreateAnnotationSet"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Set</span></b-dropdown-item>
-                    <b-dropdown-item @click="showSetDeletionDialog"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
-                </b-dropdown>
-            </b-input-group>
+                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-item :href="exportUrl" download="export.json"><font-awesome-icon icon="file-export" /><span class="icon-clearance">Export</span></b-dropdown-item>
+                <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
+                <b-dropdown-divider></b-dropdown-divider>
+                <b-dropdown-item @click="showCreateAnnotationSet"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Set</span></b-dropdown-item>
+                <b-dropdown-item @click="showSetDeletionDialog"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
+            </b-dropdown>
 
             <b-modal ref="importModal" @ok="importJson">
                 <input ref="fileField" type="file" style="color: black;" accept="application/json">
@@ -506,14 +503,13 @@
         font-size: 10pt !important;
     }
 
-    .float-left {
-        float: left;
-        padding-left: 0.5em;
-    }
-
     #colorpicker {
         margin: 2em;
         display: flex;
         justify-content: center;
+    }
+
+    .dropdown-size {
+        min-width: 10em;
     }
 </style>

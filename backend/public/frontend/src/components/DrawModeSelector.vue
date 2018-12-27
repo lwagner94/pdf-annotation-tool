@@ -1,17 +1,15 @@
 <template>
     <div>
         <b-input-group size="sm">
-            <b-dropdown size="sm" split :variant="buttonVariant" @click="toggleDrawing">
-                <template slot="button-content">
-                    <template v-if="!drawing">
-                        Draw {{selected.text}}
-                    </template>
-                    <template v-else>
-                        Stop draw mode
-                    </template>
-
+            <b-button size="sm" :variant="buttonVariant" @click="toggleDrawing">
+                <template v-if="!drawing">
+                    Draw {{selected.text}}
                 </template>
-
+                <template v-else>
+                    Stop draw mode
+                </template>
+            </b-button>
+            <b-dropdown size="sm" variant="my-primary" slot="append">
                 <b-dropdown-item v-for="option in options"
                                  :key="option.value"
                                  @click="setSelected(option)">
@@ -77,8 +75,8 @@
 </script>
 
 <style scoped>
-    .mode-select {
-        width: 8em !important;
-        font-size: 10pt !important;
+    .dropdown-size {
+        min-width: 12em;
     }
+
 </style>

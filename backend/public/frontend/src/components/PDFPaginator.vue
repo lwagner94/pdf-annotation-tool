@@ -11,7 +11,7 @@
                         type="number"
                 />
                 <div class="input-group-append btn-my-primary">
-                    <span class="input-group-text">of {{ pageCount }}</span>
+                    <span class="input-group-text">{{ pageCount }}</span>
                 </div>
             </div>
 
