@@ -1,7 +1,12 @@
 
 class HTTPError {
-    constructor(code) {
+    constructor(code, message) {
         this.code = code;
+        if (message) {
+            this.message = message;
+        }
+        else this.message = null;
+
 
         switch (this.code) {
             case 400: this.name = "Bad Request"; break;
@@ -10,18 +15,23 @@ class HTTPError {
     }
 
     send(res) {
-        res.status(this.code).send(this.name);
+        if (this.message) {
+            res.status(this.code).json({error: this.message});
+        }
+        else {
+            res.status(this.code).json({error: this.name});
+        }
     }
 }
 
 
 function handleError(res, err) {
     if (err instanceof HTTPError) {
-        res.status(err.code).send(err.name);
+        err.send(res);
     }
     else {
         console.log(err);
-        res.status(500).send("Internal server error")
+        res.status(500).json({error: "Internal server error"})
     }
 }
 

@@ -38,7 +38,6 @@
                 }
                 else {
                     this.drawing = false;
-                    console.log(this.selected);
                     EventBus.$emit("set-drawing", null);
                 }
 

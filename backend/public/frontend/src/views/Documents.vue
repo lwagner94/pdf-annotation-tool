@@ -50,16 +50,16 @@
             <b-modal ref="uploadModal" @ok="uploadDocument">
                 <input ref="fileField" type="file" accept="application/pdf">
             </b-modal>
+
+            <error-message></error-message>
         </div>
     </div>
 </template>
 
 <script>
-
-    import ModalDialog from "../components/ModalDialog";
     export default {
         name: "Documents",
-        components: {ModalDialog},
+        components: {},
         data() {
             return {
                 documents: [],
@@ -74,8 +74,25 @@
         },
 
         methods: {
+            checkReponse(response) {
+                const promise = new Promise((resolve) => {
+                    if (response.ok) {
+                        resolve(response);
+                    }
+                    else {
+                        response.json().then(response => {
+                            EventBus.$emit("show-error", response.error);
+                        });
+
+                    }
+                });
+                return promise;
+            },
+
+
             getDocuments() {
                 fetch("/api/documents")
+                    .then(response => this.checkReponse(response))
                     .then(response => response.json())
                     .then(response => {
                         this.documents = response;
@@ -88,10 +105,11 @@
                 }).then(response => {
                     this.document = undefined;
 
-                    setTimeout(() => {
-                        this.getDocuments();
-                    }, 100);
-
+                    this.checkReponse(response).then(() => {
+                        setTimeout(() => {
+                            this.getDocuments();
+                        }, 100);
+                    });
                 })
             },
 
@@ -104,7 +122,9 @@
                 fetch("/api/documents", {
                     method: "POST",
                     body: formData
-                }).then(response => {
+                })
+                    .then(response => this.checkReponse(response))
+                    .then(() => {
                     this.getDocuments();
                 })
             },

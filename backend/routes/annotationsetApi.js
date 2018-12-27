@@ -232,7 +232,7 @@ router.post("/import", checkObjectIdParams, async (req, res) => {
         }
 
         if (!importedFile.hasOwnProperty("document") || !importedFile.hasOwnProperty("annotationSet")) {
-            throw new HTTPError(400);
+            throw new HTTPError(400, "Malformed JSON file");
         }
 
         // TODO: More validation for imported json?
@@ -587,10 +587,20 @@ router.post("/:ObjectId_set/labels", checkObjectIdParams, async (req, res) => {
         return;
     }
 
+    if (req.body.name.length === 0) {
+        new HTTPError(400, "Name must not be empty").send(res);
+        return;
+    }
     try {
         const set = await models.AnnotationSet.findById(req.params.ObjectId_set)
         if (!set) {
             throw new HTTPError(404);
+        }
+
+        const existingLabels = await models.Label.find({setID: set._id, name: req.body.name});
+
+        if (!existingLabels || existingLabels.length !== 0) {
+            throw new HTTPError(400, "Labels must have a unique name");
         }
 
         const label = new models.Label({
@@ -621,6 +631,13 @@ router.delete("/:ObjectId_set/labels/:ObjectId_label", checkObjectIdParams, asyn
                 res.status(404).send("Not found");
                 return;
             }
+
+            const annotations = await models.Annotation.find({setID: set._id, labelID: label._id});
+            console.log(annotations);
+            if (!annotations || annotations.length !== 0) {
+                throw new HTTPError(400, `Label is still used by ${annotations.length}`);
+            }
+
             await label.remove();
             res.status(200).send();
 

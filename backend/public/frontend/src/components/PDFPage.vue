@@ -173,7 +173,6 @@
                 // TODO: Investigate why this fixes the page rendering bug
                 //if (page) page._destroy();
 
-                console.log("destorying");
                 this.destroyRenderTask();
 
                 if (this.annotations)

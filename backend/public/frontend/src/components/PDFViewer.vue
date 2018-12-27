@@ -33,6 +33,7 @@
             </AnnotationSet>
         </b-navbar>
         <repeat-dialog></repeat-dialog>
+        <error-message></error-message>
 
         <PDFData
                 class="pdf-viewer__main"
@@ -75,6 +76,7 @@
     import DrawModeSelector from "./DrawModeSelector";
     import RepeatDialog from "./RepeatDialog";
     import ProgressSpinner from "./ProgressSpinner";
+    import ErrorMessage from "./ErrorMessage"
 
     function floor(value, precision) {
         const multiplier = Math.pow(10, precision || 0);
@@ -94,7 +96,8 @@
             PDFZoom,
             PreviewIcon,
             RepeatDialog,
-            ProgressSpinner
+            ProgressSpinner,
+            ErrorMessage
         },
 
         props: {

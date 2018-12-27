@@ -83,12 +83,29 @@
                 activeLabel: {},
                 activeSet: {},
                 dialogSetName: "New annotation set",
-                labelName: undefined,
-                labelColor: "#FF0000"
+                labelName: "",
+                labelColor: "#FCDC00",
+                defaultColor: "#FCDC00"
             }
         },
 
         methods: {
+            checkReponse(response) {
+                const promise = new Promise((resolve) => {
+                    if (response.ok) {
+                        resolve(response);
+                    }
+                    else {
+                        response.json().then(response => {
+                            EventBus.$emit("show-error", response.error);
+                        });
+
+                    }
+                });
+                return promise;
+            },
+
+
             setActiveLabel(label) {
                 this.activeLabel = label;
                 this.$store.commit("setActiveLabel", this.activeLabel);
@@ -114,7 +131,7 @@
                         importedFile: text
                     };
 
-
+                    EventBus.$emit("show-spinner", true);
                     const response = await fetch("/api/annotationsets/import", {
                         method: "POST",
                         headers: {
@@ -122,9 +139,10 @@
                         },
                         body: JSON.stringify(requestBody)
                     });
-
-
-                    this.fetchAnnotationSets();
+                    EventBus.$emit("show-spinner", false);
+                    this.checkReponse(response).then(() => {
+                        this.fetchAnnotationSets();
+                    });
                 };
 
                 reader.readAsText(this.$refs.fileField.files[0]);
@@ -135,7 +153,8 @@
             },
 
             createLabelFromDialog() {
-                this.createLabel(this.labelName, this.labelColor.hex);
+                const color = this.labelColor.hex ? this.labelColor.hex : this.defaultColor;
+                this.createLabel(this.labelName, color);
             },
 
             createAnnotationSet(name) {
@@ -155,9 +174,10 @@
                     body: JSON.stringify(set)
                 })
                     .then(response => {
-                        // TODO: Error handling
                         EventBus.$emit("show-spinner", false);
-                        self.fetchAnnotationSets();
+                        this.checkReponse(response).then(() => {
+                            self.fetchAnnotationSets();
+                        });
                     })
             },
 
@@ -166,7 +186,7 @@
 
                 const label = {
                     name: name,
-                    color: color
+                    color: color,
                 };
                 EventBus.$emit("show-spinner", true);
                 fetch(`/api/annotationsets/${this.activeSet.id}/labels`, {
@@ -177,9 +197,11 @@
                     body: JSON.stringify(label)
                 })
                     .then(response => {
-                        // TODO: Error handling
                         EventBus.$emit("show-spinner", false);
-                        self.fetchLabels();
+                        this.checkReponse(response).then(() => {
+                            self.fetchLabels();
+                        });
+
                     })
             },
 
@@ -191,7 +213,9 @@
                     method: "DELETE"
                 }).then(response => {
                     EventBus.$emit("show-spinner", false);
-                    self.fetchLabels();
+                    this.checkReponse(response).then(() => {
+                        self.fetchLabels();
+                    });
                 });
             },
 
@@ -203,7 +227,10 @@
                     method: "DELETE"
                 }).then(response => {
                     EventBus.$emit("show-spinner", false);
-                    self.fetchAnnotationSets();
+                    this.checkReponse(response).then(() => {
+                        self.fetchAnnotationSets();
+                    });
+
                 });
             },
 
@@ -220,6 +247,7 @@
 
                 EventBus.$emit("show-spinner", true);
                 fetch("/api/annotationsets")
+                    .then(result => this.checkReponse(result))
                     .then(result => result.json())
                     .then(result => {
                         EventBus.$emit("show-spinner", false);
@@ -240,10 +268,11 @@
             fetchAnnotations() {
                 EventBus.$emit("show-spinner", true);
                 return fetch(`/api/annotationsets/${this.activeSet.id}/annotations`)
+                    .then(result => this.checkReponse(result))
                     .then(result => result.json())
                     .then(result => {
                         EventBus.$emit("show-spinner", false);
-                        const promise = new Promise((resolve, reject) => {
+                        return new Promise((resolve) => {
                             this.$store.commit("setAnnotations", []);
                             let annotations = [];
 
@@ -264,18 +293,17 @@
                             this.$store.commit("setAnnotations", annotations);
                             resolve();
                         });
-
-                        return promise;
                     })
             },
 
             fetchLabels() {
                 EventBus.$emit("show-spinner", true);
                 return fetch(`/api/annotationsets/${this.activeSet.id}/labels`)
+                    .then(result => this.checkReponse(result))
                     .then(result => result.json())
                     .then(result => {
                         EventBus.$emit("show-spinner", false);
-                        const promise = new Promise((resolve, reject) => {
+                        return new Promise((resolve) => {
                             let labels = [];
 
                             for (let label of result) {
@@ -288,7 +316,7 @@
                             }
 
                             if (!labels.length) {
-                                this.createLabel("<default>", "#FFFF00");
+                                this.createLabel("<default>", this.defaultColor);
                             }
                             else {
                                 this.labels = labels;
@@ -298,8 +326,6 @@
 
                             resolve();
                         });
-
-                        return promise;
                     });
             }
         },
@@ -328,19 +354,21 @@
                         })
                             .then(response => {
                                 EventBus.$emit("show-spinner", false);
-                                const location = response.headers.get("location");
-                                const id = location.split("/")[5];
+                                this.checkReponse(response).then(response => {
+                                    const location = response.headers.get("location");
+                                    const id = location.split("/")[5];
 
-                                self.$store.commit("storeAnnotation", {
-                                    id: id,
-                                    setID: self.activeSet.id,
-                                    labelID: annotation.labelID,
-                                    pageNumber: annotation.pageNumber,
-                                    properties: annotation.properties,
-                                    localID: annotation.localID,
-                                    dirty: false,
-                                    created: false,
-                                    deleted: false
+                                    self.$store.commit("storeAnnotation", {
+                                        id: id,
+                                        setID: self.activeSet.id,
+                                        labelID: annotation.labelID,
+                                        pageNumber: annotation.pageNumber,
+                                        properties: annotation.properties,
+                                        localID: annotation.localID,
+                                        dirty: false,
+                                        created: false,
+                                        deleted: false
+                                    });
                                 });
                             });
                     } else if (annotation.dirty) {
@@ -360,30 +388,37 @@
                         })
                             .then(response => {
                                 EventBus.$emit("show-spinner", false);
-                                const location = response.headers.get("location");
-                                const id = location.split("/")[5];
 
-                                self.$store.commit("storeAnnotation", {
-                                    id: id,
-                                    setID: self.activeSet.id,
-                                    labelID: annotation.labelID,
-                                    pageNumber: annotation.pageNumber,
-                                    properties: annotation.properties,
-                                    localID: annotation.localID,
-                                    dirty: false,
-                                    created: false,
-                                    deleted: false
+
+                                this.checkReponse(response).then(response => {
+                                    const location = response.headers.get("location");
+                                    const id = location.split("/")[5];
+
+                                    self.$store.commit("storeAnnotation", {
+                                        id: id,
+                                        setID: self.activeSet.id,
+                                        labelID: annotation.labelID,
+                                        pageNumber: annotation.pageNumber,
+                                        properties: annotation.properties,
+                                        localID: annotation.localID,
+                                        dirty: false,
+                                        created: false,
+                                        deleted: false
+                                    });
                                 });
+
+
                             });
                     } else if (annotation.deleted) {
                         EventBus.$emit("show-spinner", true);
                         fetch(`/api/annotationsets/${self.activeSet.id}/annotations/${annotation.id}`, {
                             method: "DELETE",
-                        }).then(() => {
+                        }).then((response) => {
                             EventBus.$emit("show-spinner", false);
-                            // TODO: Check error!
-                            self.$store.commit("deleteAnnotation", {
-                                localID: annotation.localID,
+                            this.checkReponse(response).then(() => {
+                                self.$store.commit("deleteAnnotation", {
+                                    localID: annotation.localID,
+                                });
                             });
                         });
                     }
@@ -396,10 +431,12 @@
                 EventBus.$emit("show-spinner", true);
                 const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/byfontstyle`);
                 EventBus.$emit("show-spinner", false);
-                this.fetchAnnotations().then(() => {
-                    EventBus.$emit("reload-annotations");
-                });
 
+                this.checkReponse(response).then(() => {
+                    this.fetchAnnotations().then(() => {
+                        EventBus.$emit("reload-annotations");
+                    });
+                });
             });
 
             EventBus.$on("repeat-by-page", async (localID, mode) => {
@@ -408,8 +445,10 @@
                 const response = await fetch(`/api/annotationsets/${this.activeSet.id}/annotations/${annotation.id}/bypage?mode=${mode}`);
                 EventBus.$emit("show-spinner", false);
 
-                this.fetchAnnotations().then(() => {
-                    EventBus.$emit("reload-annotations");
+                this.checkReponse(response).then(() => {
+                    this.fetchAnnotations().then(() => {
+                        EventBus.$emit("reload-annotations");
+                    });
                 });
 
             });
@@ -419,6 +458,7 @@
         beforeDestroy() {
             EventBus.$off("annotations-modified");
             EventBus.$off("repeat-by-fontstyle");
+            EventBus.$off("repeat-by-page");
         },
 
         computed: {

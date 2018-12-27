@@ -34,7 +34,6 @@ class Annotations {
     registerCallbacks() {
         const self = this;
         this.setDrawingCallback = mode => {
-            console.log(mode);
             self.drawMode = mode;
         };
 
@@ -113,7 +112,7 @@ class Annotations {
             annotation.height = h;
             self.context.renderAll();
         });
-        this.context.on("mouse:up", opt => {
+        this.context.on("mouse:up", () => {
             if (!self.drawMode)
                 return false;
 
@@ -193,7 +192,6 @@ class Annotations {
     }
 
     removeAnnotation(annotation) {
-        console.log("Remove annotation: ", annotation, this);
         annotation.removeFromContext();
 
         store.commit("storeAnnotation", {

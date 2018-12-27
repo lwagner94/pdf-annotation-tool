@@ -20,7 +20,7 @@
                 if (show) {
                     this.timeoutHandle = setTimeout(() => {
                         this.loading = true;
-                    }, 200);
+                    }, 500);
                 }
                 else {
                     if (this.timeoutHandle) {
