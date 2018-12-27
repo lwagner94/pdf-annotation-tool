@@ -426,10 +426,10 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkO
 
         const parsedAnnotationProperties = JSON.parse(annotation.properties);
 
-        if (parsedAnnotationProperties.type !== "rectangle") {
-            throw new HTTPError(400);
+        let text = null;
+        if (parsedAnnotationProperties.data.hasOwnProperty("text")) {
+            text = parsedAnnotationProperties.data.text;
         }
-
 
         const requestBody = {
             documentID: set.documentID,
@@ -456,18 +456,24 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/byfontstyle", checkO
 
         const newAnnotations = [];
         for (let newAnnotation of result) {
+            const data = {
+                x: newAnnotation.x,
+                y: newAnnotation.y,
+                width: newAnnotation.width,
+                height: newAnnotation.height
+            };
+
+            if (text) {
+                data.text = text;
+            }
+
             newAnnotations.push(new models.Annotation({
                 setID: set._id,
                 labelID: annotation.labelID,
                 pageNumber: newAnnotation.pageNumber,
                 properties: JSON.stringify({
-                    type: "rectangle",
-                    data: {
-                        x: newAnnotation.x,
-                        y: newAnnotation.y,
-                        width: newAnnotation.width,
-                        height: newAnnotation.height
-                    }
+                    type: parsedAnnotationProperties.type,
+                    data: data
                 })
             }).save());
         }
@@ -495,9 +501,11 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/bypage", checkObject
 
         const parsedAnnotationProperties = JSON.parse(annotation.properties);
 
-        if (parsedAnnotationProperties.type !== "rectangle") {
-            throw new HTTPError(400);
+        let text = null;
+        if (parsedAnnotationProperties.data.hasOwnProperty("text")) {
+            text = parsedAnnotationProperties.data.text;
         }
+
 
         const requestBody = {
             documentID: set.documentID,
@@ -523,18 +531,24 @@ router.get("/:ObjectId_set/annotations/:ObjectId_annotation/bypage", checkObject
 
         const newAnnotations = [];
         for (let newAnnotation of result) {
+            const data = {
+                x: newAnnotation.x,
+                y: newAnnotation.y,
+                width: newAnnotation.width,
+                height: newAnnotation.height
+            };
+
+            if (text) {
+                data.text = text;
+            }
+
             newAnnotations.push(new models.Annotation({
                 setID: set._id,
                 labelID: annotation.labelID,
                 pageNumber: newAnnotation.pageNumber,
                 properties: JSON.stringify({
-                    type: "rectangle",
-                    data: {
-                        x: newAnnotation.x,
-                        y: newAnnotation.y,
-                        width: newAnnotation.width,
-                        height: newAnnotation.height
-                    }
+                    type: parsedAnnotationProperties.type,
+                    data: data
                 })
             }).save());
         }
