@@ -38,9 +38,16 @@ router.post("/", upload.single("pdf"), (req, res) => {
         size: req.file.size,
     });
 
-    return newFile.save().then(document => {
-        res.location(`/api/documents/${document._id}`);
-        res.status(201).send();
+    newFile.save().then(document => {
+        const path = getFilePath() + document._id;
+
+        const buffer = thumbnail.generateThumbnail(path).then(buffer => {
+            console.log(buffer);
+            fs.writeFile(path + ".png", buffer, error => {
+                res.location(`/api/documents/${document._id}`);
+                res.status(201).send();
+            });
+        });
     }).catch(err => {
         handleError(res, err);
     });
@@ -87,11 +94,12 @@ router.get("/:id/thumb", (req, res) => {
             throw new HTTPError(404);
         }
 
-        const path = getFilePath() + result._id;
+        const path = getFilePath() + result._id + ".png";
 
-        thumbnail.generateThumbnail(path).then(stream => {
-            stream.pipe(res);
-        });
+        const stream = fs.createReadStream(path)
+        res.type("application/png")
+        stream.pipe(res);
+
     }).catch(err => {
         handleError(res, err);
     });
@@ -120,6 +128,12 @@ router.delete("/:id", async (req, res) => {
         res.status(200).send();
 
         const path = getFilePath() + document._id;
+
+        fs.unlink(path + ".png", (err) => {
+           if (err)
+               throw err;
+        });
+
         fs.unlink(path, (err) => {
             if (err)
                 throw err;

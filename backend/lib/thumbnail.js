@@ -40,7 +40,7 @@ function generateThumbnail(path) {
         };
         return page.render(renderContext).promise
     }).then(() => {
-        return canvas.createPNGStream();
+        return canvas.toBuffer();
     });
 }
 
