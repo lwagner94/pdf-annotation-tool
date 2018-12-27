@@ -57,9 +57,11 @@
 </template>
 
 <script>
+    import ErrorMessage from "../components/ErrorMessage";
+
     export default {
         name: "Documents",
-        components: {},
+        components: {ErrorMessage},
         data() {
             return {
                 documents: [],

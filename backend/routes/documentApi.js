@@ -122,6 +122,11 @@ router.delete("/:id", async (req, res) => {
                 annotation.remove();
             }
 
+            const labels = await models.Label.find({setID: set._id});
+            for (let label of labels) {
+                label.remove();
+            }
+
             set.remove();
         }
 

@@ -1,5 +1,5 @@
 <template>
-        <div v-show="loading" id="loader"></div>
+    <div v-show="showSpinner" id="loader"></div>
 </template>
 
 <script>
@@ -11,23 +11,33 @@
         data() {
             return {
                 loading: false,
-                timeoutHandle: null
+                showSpinner: false,
+                timeoutHandle: null,
+                start: Date.now(),
             }
         },
 
         mounted() {
-            EventBus.$on("show-spinner", (show) => {
-                if (show) {
-                    this.timeoutHandle = setTimeout(() => {
-                        this.loading = true;
-                    }, 500);
+            setInterval(() => {
+                const timeDiff = Date.now() - this.start;
+
+                if (this.loading) {
+                    if (timeDiff > 200) {
+                        this.showSpinner = true;
+                    }
                 }
                 else {
-                    if (this.timeoutHandle) {
-                        clearTimeout(this.timeoutHandle);
-                    }
-                    this.loading = false;
+                    this.showSpinner = false;
                 }
+
+            }, 100);
+
+            EventBus.$on("show-spinner", (show) => {
+                if (show) {
+                    this.start = Date.now();
+                }
+
+                this.loading = show;
             });
         }
     }
@@ -61,7 +71,11 @@
 
 
     @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
