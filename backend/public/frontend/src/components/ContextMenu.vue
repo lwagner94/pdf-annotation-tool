@@ -1,14 +1,24 @@
 <template>
     <div class="context-menu" ref="menu" :style="style">
         <ul class="context-menu-options">
-            <li @click="deleteCB(); visible = false" class="context-menu-option">Delete</li>
-            <li @click="repeatCB(); visible = false" class="context-menu-option">Repeat Annotation...</li>
+            <li @click="deleteCB(); visible = false" class="context-menu-option">
+                <font-awesome-icon icon="trash-alt"></font-awesome-icon><span class="icon-clearance">Delete</span>
+            </li>
+            <li @click="repeatCB(); visible = false" class="context-menu-option">
+                <font-awesome-icon icon="redo"></font-awesome-icon><span class="icon-clearance">Repeat Annotation...</span>
+            </li>
+
+            <hr>
 
             <li v-for="label in labels"
                 :key="label.id"
                 @click="setLabelCB(label); visible = false"
                 class="context-menu-option">
-                <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span><span class="icon-clearance">{{label.name}}</span>
+                <span :style="'color: ' + label.color"><font-awesome-icon icon="circle" /></span>
+                <span class="icon-clearance">{{label.name}}</span>
+                <span class="icon-clearance" v-if="activeLabel.name === label.name">
+                    <font-awesome-icon icon="check"></font-awesome-icon>
+                </span>
             </li>
         </ul>
     </div>
@@ -28,7 +38,7 @@
                 deleteCB: null,
                 setLabelCB: null,
                 repeatCB: null,
-
+                activeLabel: {}
             }
         },
 
@@ -67,6 +77,10 @@
 
             setLabelCallback(cb) {
                 this.setLabelCB = cb;
+            },
+
+            setActiveLabel(label) {
+                this.activeLabel = label;
             },
 
             cleanup() {

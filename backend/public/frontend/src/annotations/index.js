@@ -152,9 +152,6 @@ class Annotations {
     }
 
     showContextMenu(x, y, annotationInstance) {
-        this.menu.setVisible(true);
-        this.menu.setPosition(x, y);
-
         this.menu.setDeleteCallback(() => {
             this.removeAnnotation(annotationInstance)
         });
@@ -168,6 +165,11 @@ class Annotations {
             annotationInstance.label = label;
             this.updateAnnotation(annotationInstance);
         });
+
+        this.menu.setActiveLabel(annotationInstance.label);
+
+        this.menu.setVisible(true);
+        this.menu.setPosition(x, y);
     }
 
     hideContextMenu() {
