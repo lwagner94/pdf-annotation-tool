@@ -635,7 +635,7 @@ router.delete("/:ObjectId_set/labels/:ObjectId_label", checkObjectIdParams, asyn
             const annotations = await models.Annotation.find({setID: set._id, labelID: label._id});
             console.log(annotations);
             if (!annotations || annotations.length !== 0) {
-                throw new HTTPError(400, `Label is still used by ${annotations.length}`);
+                throw new HTTPError(400, `Label is still used by ${annotations.length} annotations`);
             }
 
             await label.remove();
