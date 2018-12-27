@@ -31,6 +31,7 @@
             <AnnotationSet :documentID="documentID">
             </AnnotationSet>
         </b-navbar>
+        <repeat-dialog></repeat-dialog>
 
         <PDFData
                 class="pdf-viewer__main"
@@ -71,6 +72,7 @@
     import PDFZoom from './PDFZoom';
     import AnnotationSet from "./AnnotationSet";
     import DrawModeSelector from "./DrawModeSelector";
+    import RepeatDialog from "./RepeatDialog";
 
     function floor(value, precision) {
         const multiplier = Math.pow(10, precision || 0);
@@ -89,6 +91,7 @@
             PDFPreview,
             PDFZoom,
             PreviewIcon,
+            RepeatDialog
         },
 
         props: {

@@ -159,11 +159,10 @@ class Annotations {
         this.menu.setDeleteCallback(() => {
             this.removeAnnotation(annotationInstance)
         });
-        this.menu.setRepeatByFontStyleCallback(() => {
-            this.repeatByFontStyle(annotationInstance);
-        });
-        this.menu.setRepeatByPageCallback(() => {
-            this.repeatByPage(annotationInstance);
+
+        this.menu.setRepeatCallback(() => {
+            EventBus.$emit("show-repeat-dialog", annotationInstance.localID);
+            // this.repeatByPage(annotationInstance);
         });
 
         this.menu.setLabelCallback((label) => {
@@ -213,14 +212,6 @@ class Annotations {
         if (index > -1) {
             this._annotations.splice(index, 1);
         }
-    }
-
-    repeatByFontStyle(annotation) {
-        EventBus.$emit("repeat-by-fontstyle", annotation.localID);
-    }
-
-    repeatByPage(annotation) {
-        EventBus.$emit("repeat-by-page", annotation.localID, "even");
     }
 
     storeAnnotation(annotation) {

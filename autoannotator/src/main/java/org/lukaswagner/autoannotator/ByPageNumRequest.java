@@ -35,7 +35,7 @@ public class ByPageNumRequest {
                 base = 1;
                 break;
             case "all":
-                modulo = 0;
+                modulo = 1;
                 base = 0;
                 break;
             default:

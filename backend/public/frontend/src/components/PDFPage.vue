@@ -22,6 +22,7 @@
     import {PIXEL_RATIO} from '../utils/constants';
     import ContextMenu from "./ContextMenu";
 
+
     document.addEventListener('contextmenu', event => event.preventDefault());
 
     export default {
