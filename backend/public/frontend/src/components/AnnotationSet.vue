@@ -182,8 +182,6 @@
             },
 
             createLabel(name, color) {
-                const self = this;
-
                 const label = {
                     name: name,
                     color: color,
@@ -199,7 +197,9 @@
                     .then(response => {
                         EventBus.$emit("show-spinner", false);
                         this.checkReponse(response).then(() => {
-                            self.fetchLabels();
+                            this.fetchLabels().then(() => {
+                                this.setActiveLabel(this.labels.find(label => label.name === name));
+                            });
                         });
 
                     })
