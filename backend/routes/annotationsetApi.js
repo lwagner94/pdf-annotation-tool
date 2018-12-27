@@ -61,6 +61,11 @@ router.post("/", (req, res) => {
         return;
     }
 
+    if (req.body.name.length === 0) {
+        new HTTPError(400, "Name must not be empty").send(res);
+        return;
+    }
+
 
     models.Document.findById(req.body.documentID).then(result => {
         if (!result) {

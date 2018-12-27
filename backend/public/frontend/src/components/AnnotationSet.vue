@@ -22,7 +22,7 @@
         </div>
         <div class="float-left">
             <b-input-group>
-                <b-dropdown size="sm" variant="my-primary" offset="-5em">
+                <b-dropdown size="sm" variant="my-primary" offset="-50">
                     <template slot="button-content">
                         <strong>Set: </strong> {{activeSet.name}}
                     </template>
@@ -36,25 +36,34 @@
                     <b-dropdown-item @click="showImport"><font-awesome-icon icon="file-import" /><span class="icon-clearance">Import</span></b-dropdown-item>
                     <b-dropdown-divider></b-dropdown-divider>
                     <b-dropdown-item @click="showCreateAnnotationSet"><font-awesome-icon icon="plus" /><span class="icon-clearance">Create Set</span></b-dropdown-item>
-                    <b-dropdown-item @click="deleteAnnotationSet"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
+                    <b-dropdown-item @click="showSetDeletionDialog"><font-awesome-icon icon="trash-alt" /><span class="icon-clearance">Delete Set</span></b-dropdown-item>
                 </b-dropdown>
             </b-input-group>
 
             <b-modal ref="importModal" @ok="importJson">
-                <input ref="fileField" type="file" accept="application/json">
+                <input ref="fileField" type="file" style="color: black;" accept="application/json">
             </b-modal>
 
             <b-modal ref="createSetModal" @ok="createAnnotationSetFromDialog">
-                <input v-model="dialogSetName">
+                <b-form-input v-model="dialogSetName"
+                              type="text"
+                              placeholder="Enter set name">
+                </b-form-input>
             </b-modal>
 
             <b-modal ref="createLabelModal" @ok="createLabelFromDialog">
                 <b-form-input v-model="labelName"
                               type="text"
-                              placeholder="Enter label name"></b-form-input>
+                              placeholder="Enter label name">
+
+                </b-form-input>
                 <div id="colorpicker">
                     <compact-picker v-model="labelColor"></compact-picker>
                 </div>
+            </b-modal>
+
+            <b-modal ref="deleteSetModal" @ok="deleteAnnotationSet">
+                <span style="color: black;">Are you sure?</span>
             </b-modal>
         </div>
     </div>
@@ -82,7 +91,7 @@
                 labels: [],
                 activeLabel: {},
                 activeSet: {},
-                dialogSetName: "New annotation set",
+                dialogSetName: "",
                 labelName: "",
                 labelColor: "#FCDC00",
                 defaultColor: "#FCDC00"
@@ -103,6 +112,10 @@
                     }
                 });
                 return promise;
+            },
+
+            showSetDeletionDialog() {
+                this.$refs.deleteSetModal.show();
             },
 
 
