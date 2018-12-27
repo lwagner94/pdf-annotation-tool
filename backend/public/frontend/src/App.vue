@@ -34,10 +34,20 @@
     }
 
 
-    /*.btn:focus,.btn:active:focus,.btn.active:focus,*/
-    /*.btn.focus,.btn:active.focus,.btn.active.focus {*/
-        /*box-shadow: none !important;*/
-    /*}*/
+    .btn-my-primary-draw-active {
+        background-color: @buttonDrawingActive;
+        color: @mainTextColor;
+    }
+
+    .btn-my-primary-draw-active:hover {
+        background-color: @buttonDrawingActiveHover;
+        color: @mainTextColor;
+    }
+
+    .btn-my-primary-draw-active:focus {
+        box-shadow: none !important;
+    }
+
 
 
     html {

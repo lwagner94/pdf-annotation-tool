@@ -1,12 +1,25 @@
 <template>
     <div>
         <b-input-group size="sm">
-            <b-form-select v-model="selected" :options="options" class="mode-select">
+            <b-dropdown size="sm" split :variant="buttonVariant" @click="toggleDrawing">
+                <template slot="button-content">
+                    <template v-if="!drawing">
+                        Draw {{selected.text}}
+                    </template>
+                    <template v-else>
+                        Stop draw mode
+                    </template>
 
-            </b-form-select>
-            <b-button slot="append" @click="toggleDrawing" :pressed="drawing" variant="my-primary">
-                Draw
-            </b-button>
+                </template>
+
+                <b-dropdown-item v-for="option in options"
+                                 :key="option.value"
+                                 @click="setSelected(option)">
+                    {{option.text}}
+                </b-dropdown-item>
+
+
+            </b-dropdown>
 
         </b-input-group>
     </div>
@@ -19,9 +32,9 @@
 
         data() {
             return {
+                buttonVariant: "my-primary",
                 drawing: false,
-                drawMode: null,
-                selected: undefined,
+                selected: {},
                 options: [
                     {value: "rectangle", text: "Rectangle"},
                     {value: "textbox", text: "Text Box"},
@@ -31,10 +44,14 @@
         },
 
         methods: {
+            setSelected(option) {
+                this.selected = option;
+            },
+
             toggleDrawing() {
                 if (!this.drawing) {
                     this.drawing = true;
-                    EventBus.$emit("set-drawing", this.selected);
+                    EventBus.$emit("set-drawing", this.selected.value);
                 }
                 else {
                     this.drawing = false;
@@ -45,10 +62,14 @@
         },
 
         mounted() {
-            this.selected = this.options[0].value;
+            this.selected = this.options[0];
             EventBus.$on("set-drawing", drawing => {
                 if (!drawing) {
                     this.drawing = false;
+                    this.buttonVariant = "my-primary";
+                }
+                else {
+                    this.buttonVariant = "my-primary-draw-active";
                 }
             });
         },
