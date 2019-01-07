@@ -9,7 +9,7 @@ public class DocumentManager {
         if (path != null) {
             return new File (path + id);
         }
-        
+
         return new File("../backend/files/" + id);
     }
 }
