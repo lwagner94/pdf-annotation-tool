@@ -510,6 +510,6 @@
     }
 
     .dropdown-size {
-        min-width: 10em;
+        min-width: 1em;
     }
 </style>

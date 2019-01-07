@@ -18,6 +18,10 @@ router.use(bodyParser.json());
 function getFilePath() {
     if (process.env.NODE_ENV === "test")
         return "files-test/";
+
+    if (process.env.NODE_ENV === "production")
+        return "/files/";
+
     return "files/";
 
 }

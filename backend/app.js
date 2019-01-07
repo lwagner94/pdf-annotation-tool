@@ -11,6 +11,8 @@ const history = require('connect-history-api-fallback');
 let db = "";
 if (process.env.NODE_ENV === "test") {
     db = "mongodb://localhost/pdfannotationtool-test"
+} else if (process.env.NODE_ENV === "production") {
+    db = "mongodb://mongodb/pdfannotationtool";
 } else {
     db = "mongodb://localhost/pdfannotationtool"
 }
@@ -34,8 +36,7 @@ app.use(history({
 
 app.set('json spaces', 4);
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', __dirname + '/views'); // general config
 app.set('view engine', 'pug');
 
 if (process.env.NODE_ENV !== "test") {

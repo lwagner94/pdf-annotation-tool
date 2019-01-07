@@ -12,7 +12,10 @@ const router = express.Router();
 
 router.use(bodyParser.json());
 
-const AUTOANNOTATOR_URL = "http://localhost:4567";
+let AUTOANNOTATOR_URL = "http://localhost:4567";
+if (process.env.NODE_ENV === "production") {
+    AUTOANNOTATOR_URL = "http://autoannotator:4567"
+}
 
 
 function checkObjectIdParams(req, res, next) {

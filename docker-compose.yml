@@ -2,14 +2,33 @@ version: '3.1'
 
 services:
 
-  mongo:
+  mongodb:
     image: mongo
     restart: always
-    ports:
-      - 27017:27017
+    volumes:
+      - ./state/mongo/configdb:/data/configdb
+      - ./state/mongo/db/:/data/db
 
-  mongo-express:
-    image: mongo-express
+  
+  annotationtool:
+    build: ./backend
     restart: always
-    ports:
-      - 8081:8081
+    depends_on:
+      - mongodb
+      - autoannotator
+
+    links:
+      - mongodb
+      - autoannotator
+    ports: 
+      - 3000:3000
+
+    volumes: 
+      - ./state/files:/files
+
+  autoannotator:
+    restart: always
+    build: ./autoannotator
+    volumes: 
+      - ./state/files:/files
+
