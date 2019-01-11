@@ -96,7 +96,7 @@ export default class Annotation {
     }
 
     set scale(s) {
-        this._scale = s / window.devicePixelRatio;
+        this._scale = s;
         this.object.set("scaleX", this._scale);
         this.object.set("scaleY", this._scale);
 

@@ -19,7 +19,7 @@ class Annotations {
             y: 0
         };
 
-        this._scale = scale;
+        this._scale = scale / window.devicePixelRatio;
 
         this._annotations = [];
 
@@ -270,7 +270,7 @@ class Annotations {
 
 
     set scale(s) {
-        this._scale = s;
+        this._scale = s / window.devicePixelRatio;
 
         for (let annotation of this._annotations) {
             annotation.scale = this._scale;
