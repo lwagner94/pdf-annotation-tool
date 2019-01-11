@@ -1,4 +1,5 @@
 import colorHexToRGBA from "../utils/color";
+import PIXEL_RATIO from "../utils/constants"
 
 export default class Annotation {
     constructor(context, object, x, y, width, height, scale, localID, label) {
@@ -7,15 +8,12 @@ export default class Annotation {
         this._label = label;
 
         this.object = object;
+        this.object.annotationInstance = this;
         this._x = x;
         this._y = y;
         this._width = width;
         this._height = height;
-        this._scale = scale;
-        this.object.annotationInstance = this;
-
-        this.object.set("left", x * scale);
-        this.object.set("top", y * scale);
+        this.scale = scale;
     }
 
 
@@ -98,7 +96,7 @@ export default class Annotation {
     }
 
     set scale(s) {
-        this._scale = s;
+        this._scale = s / window.devicePixelRatio;
         this.object.set("scaleX", this._scale);
         this.object.set("scaleY", this._scale);
 
