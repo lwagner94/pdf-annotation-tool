@@ -35,6 +35,8 @@ export default class StickyNote extends Annotation {
             lockRotation: true
         });
 
+        this.scale = scale;
+
         this.expandedView.annotationInstance = this;
 
 
@@ -61,7 +63,6 @@ export default class StickyNote extends Annotation {
 
         setTimeout(() => {
             if (!self.expanded) {
-                console.log("Adding");
                 self.expandedView.set("left", self.x * self._scale);
                 self.expandedView.set("top", self.y * self._scale);
 
@@ -69,7 +70,6 @@ export default class StickyNote extends Annotation {
                 self.context.setActiveObject(self.expandedView);
             }
             else {
-                console.log("Removing");
                 self.context.remove(self.expandedView);
             }
             self.expanded = !self.expanded;
@@ -97,11 +97,13 @@ export default class StickyNote extends Annotation {
         this.object.set("left", this._x * this._scale);
         this.object.set("top", this._y * this._scale);
 
-        this.expandedView.set("scaleX", this._scale);
-        this.expandedView.set("scaleY", this._scale );
+        if (this.expandedView) {
+            this.expandedView.set("scaleX", this._scale);
+            this.expandedView.set("scaleY", this._scale );
 
-        this.expandedView.set("left", this._x * this._scale);
-        this.expandedView.set("top", this._y * this._scale);
+            this.expandedView.set("left", this._x * this._scale);
+            this.expandedView.set("top", this._y * this._scale);
+        }
     }
 
     applyColor() {
