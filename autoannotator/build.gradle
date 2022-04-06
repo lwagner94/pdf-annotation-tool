@@ -23,8 +23,8 @@ application {
 }
 
 dependencies {
-    compile 'org.apache.pdfbox:pdfbox:2.0.13'
-    compile "com.sparkjava:spark-core:2.7.2"
-    compile "org.slf4j:slf4j-simple:1.7.21"
+    implementation 'org.apache.pdfbox:pdfbox:2.0.13'
+    implementation "com.sparkjava:spark-core:2.7.2"
+    implementation "org.slf4j:slf4j-simple:1.7.21"
     implementation 'com.google.code.gson:gson:2.8.5'
 }

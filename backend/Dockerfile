@@ -7,10 +7,12 @@ WORKDIR /code
 RUN mkdir /files
 
 COPY package*.json ./
+COPY yarn.lock ./
 RUN yarn
 COPY . .
 
 WORKDIR /code/public/frontend
+COPY ./public/frontend/yarn.lock ./
 RUN yarn
 RUN yarn build-production
 WORKDIR /code

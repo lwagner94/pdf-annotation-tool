@@ -6,7 +6,7 @@ WORKDIR /code
 
 COPY . .
 
-RUN gradle build
+RUN gradle build --warning-mode all
 EXPOSE 4567
 ENV FILES_PATH /files/
 

@@ -12,25 +12,25 @@ services:
       - 27017:27017
 
   
-#  annotationtool:
-#    build: ./backend
-#    restart: always
-#    depends_on:
-#      - mongodb
-#      - autoannotator
+  annotationtool:
+    build: ./backend
+    restart: always
+    depends_on:
+      - mongodb
+      - autoannotator
 
-#    links:
-#      - mongodb
-#      - autoannotator
-#    ports: 
-#      - 3000:3000
+    links:
+      - mongodb
+      - autoannotator
+    ports: 
+      - 3000:3000
 
-#    volumes: 
-#      - ./state/files:/files
+    volumes: 
+      - ./state/files:/files
 
-#  autoannotator:
-#    restart: always
-#    build: ./autoannotator
-#    volumes: 
-#      - ./state/files:/files
+  autoannotator:
+    restart: always
+    build: ./autoannotator
+    volumes: 
+      - ./state/files:/files
 
